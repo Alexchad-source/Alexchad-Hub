@@ -191,7 +191,12 @@ end
 MiscTab:CreateButton({
     Name = "Copy Discord Link",
     Callback = function()
-        setclipboard("https://discord.gg/https://discord.gg/TBJgw6MHcB")
+        setclipboard("https://discord.gg/TBJgw6MHcB")
+        Window:Notify({
+            Title = "Copied!",
+            Content = "Copied Discord-Link!",
+            Duration = 3
+        })
     end
 })
 
