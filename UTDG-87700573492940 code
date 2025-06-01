@@ -298,7 +298,7 @@ MiscTab:CreateButton({
 MiscTab:CreateButton({
     Name = "Copy Discord Link",
     Callback = function()
-        setclipboard("https://discord.gg/yourserver")
+        setclipboard("https://discord.gg/https://discord.gg/TBJgw6MHcB")
     end
 })
 
