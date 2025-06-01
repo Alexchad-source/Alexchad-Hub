@@ -1,5 +1,5 @@
 local placeScripts = {
-    [87700573492940] = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/main/UTDG-87700573492940%20code.lua",
+    [87700573492940] = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/refs/heads/main/UTDG-87700573492940%20code",
     [87654321] = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/main/script_for_place2.lua",
     -- add more place IDs and URLs here
 }
