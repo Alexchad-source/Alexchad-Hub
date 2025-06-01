@@ -4,16 +4,16 @@ local placeScripts = {
     -- add more place IDs and URLs here
 }
 
-local placeId = game.PlaceId
-local scriptUrl = placeScripts[placeId]
+-- Universelles GUI (für nicht unterstützte Spiele)
+local fallbackScriptUrl = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/main/universal_gui.lua"
 
-if scriptUrl then
-    local success, err = pcall(function()
-        loadstring(game:HttpGet(scriptUrl))()
-    end)
-    if not success then
-        warn("Failed to load script for this place: "..err)
-    end
-else
-    warn("No script mapped for this PlaceId: "..placeId)
+local placeId = game.PlaceId
+local scriptUrl = placeScripts[placeId] or fallbackScriptUrl
+
+local success, err = pcall(function()
+    loadstring(game:HttpGet(scriptUrl))()
+end)
+
+if not success then
+    warn("Failed to load script: " .. err)
 end
