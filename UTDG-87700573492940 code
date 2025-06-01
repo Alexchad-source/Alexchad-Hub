@@ -9,11 +9,6 @@ local Window = Rayfield:CreateWindow({
 })
 
 local Tab = Window:CreateTab("Main", 4483362458)
-Tab:CreateLabel({
-    Name = "Note",
-    Text = "Drill need sto be in 1 slot for AutoDrill to work."
-})
-
 local autoOreEnabled = false
 local oreLoop
 
