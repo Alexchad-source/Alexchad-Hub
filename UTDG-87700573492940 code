@@ -1,0 +1,392 @@
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "UTDG GUI by Alex",
+    LoadingTitle = "Loading...",
+    ConfigurationSaving = {
+        Enabled = false
+    }
+})
+
+local Tab = Window:CreateTab("Main", 4483362458)
+
+local autoOreEnabled = false
+local oreLoop
+
+local function equipFirstTool()
+    local tool = game.Players.LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+    if tool then
+        game:GetService("VirtualInputManager"):SendKeyEvent(true, "One", false, game)
+        wait()
+        game:GetService("VirtualInputManager"):SendKeyEvent(false, "One", false, game)
+    end
+end
+
+Tab:CreateToggle({
+    Name = "Auto Ores",
+    CurrentValue = false,
+    Callback = function(Value)
+        autoOreEnabled = Value
+
+        if Value then
+            equipFirstTool()
+            oreLoop = task.spawn(function()
+                while autoOreEnabled do
+                    pcall(function()
+                        game:GetService("ReplicatedStorage"):WaitForChild("Packages")
+                            :WaitForChild("Knit"):WaitForChild("Services")
+                            :WaitForChild("OreService"):WaitForChild("RE")
+                            :WaitForChild("RequestRandomOre"):FireServer()
+                    end)
+                    task.wait(0.0001)
+                end
+            end)
+        else
+            equipFirstTool()
+            if oreLoop then
+                task.cancel(oreLoop)
+            end
+        end
+    end
+})
+
+
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+-- Setup: Rename the player's plot to "LPPlot" (runs once)
+local plotsFolder = workspace:WaitForChild("Plots")
+for _, plot in ipairs(plotsFolder:GetChildren()) do
+    local ownerVal = plot:FindFirstChild("Owner")
+    if ownerVal and ownerVal:IsA("ObjectValue") and ownerVal.Value and ownerVal.Value.Name == player.Name then
+        plot.Name = "LPPlot"
+        break
+    end
+end
+
+-- Auto Collect Drills Toggle
+local collectDrills = false
+local drillLoop
+
+Tab:CreateToggle({
+    Name = "Auto Collect Drills",
+    CurrentValue = false,
+    Callback = function(Value)
+        collectDrills = Value
+
+        if Value then
+            drillLoop = task.spawn(function()
+                while collectDrills do
+                    local drillFolder = workspace:WaitForChild("Plots"):FindFirstChild("LPPlot"):FindFirstChild("Drills")
+                    if drillFolder then
+                        local drills = {}
+                        for _, drill in ipairs(drillFolder:GetChildren()) do
+                            if drill:IsA("Model") then
+                                table.insert(drills, drill)
+                            end
+                        end
+
+                        if #drills > 0 then
+                            local chosen = drills[math.random(1, #drills)]
+                            local part = chosen.PrimaryPart or chosen:FindFirstChildWhichIsA("BasePart")
+                            if part then
+                                hrp.CFrame = CFrame.new(part.Position + Vector3.new(0, 3, 0))
+
+                                task.wait(0.02)
+                                local vim = game:GetService("VirtualInputManager")
+                                vim:SendKeyEvent(true, "E", false, game)
+                                task.wait(0.05)
+                                vim:SendKeyEvent(false, "E", false, game)
+                            end
+                        end
+                    end
+                    task.wait(0.1)
+                end
+            end)
+        else
+            if drillLoop then
+                task.cancel(drillLoop)
+            end
+        end
+    end
+})
+
+
+Tab:CreateButton({
+    Name = "Sell All",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+
+        -- Save original position
+        local originalCFrame = hrp.CFrame
+
+        -- Teleport to sell part
+        local sellPart = game:GetService("Workspace")["Sell Shop"].Part
+        hrp.CFrame = sellPart.CFrame + Vector3.new(0, 3, 0) -- Teleport slightly above
+
+        task.wait(0.25) -- Let physics update
+
+        -- Fire the sell remote
+        game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit")
+            :WaitForChild("Services"):WaitForChild("OreService"):WaitForChild("RE")
+            :WaitForChild("SellAll"):FireServer()
+
+        task.wait(0.25)
+
+        -- Return to original position
+        hrp.CFrame = originalCFrame
+    end
+})
+local PlayerTab = Window:CreateTab("Player", 4483362458)
+
+-- Speed
+local walkspeed = 16
+PlayerTab:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {0, 200},
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = 16,
+    Callback = function(Value)
+        walkspeed = Value
+    end
+})
+
+PlayerTab:CreateButton({
+    Name = "Apply Speed",
+    Callback = function()
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.WalkSpeed = walkspeed
+            end
+        end
+    end
+})
+
+-- JumpPower
+local jumppower = 50
+PlayerTab:CreateSlider({
+    Name = "JumpPower",
+    Range = {0, 300},
+    Increment = 1,
+    Suffix = "Power",
+    CurrentValue = 50,
+    Callback = function(Value)
+        jumppower = Value
+    end
+})
+
+PlayerTab:CreateButton({
+    Name = "Apply JumpPower",
+    Callback = function()
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.JumpPower = jumppower
+            end
+        end
+    end
+})
+
+-- Infinite Jump
+local infJumpEnabled = false
+PlayerTab:CreateToggle({
+    Name = "Infinite Jump",
+    CurrentValue = false,
+    Callback = function(Value)
+        infJumpEnabled = Value
+    end
+})
+
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if infJumpEnabled then
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end
+    end
+end)
+
+-- NoClip
+local noclipEnabled = false
+local RunService = game:GetService("RunService")
+
+PlayerTab:CreateToggle({
+    Name = "NoClip",
+    CurrentValue = false,
+    Callback = function(Value)
+        noclipEnabled = Value
+    end
+})
+
+RunService.Stepped:Connect(function()
+    if noclipEnabled then
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            for _, v in ipairs(char:GetDescendants()) do
+                if v:IsA("BasePart") and v.CanCollide then
+                    v.CanCollide = false
+                end
+            end
+        end
+    end
+end)
+
+PlayerTab:CreateButton({
+    Name = "Reset Character",
+    Callback = function()
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            char:BreakJoints()
+        end
+    end
+})
+
+--MISC TAB
+
+local MiscTab = Window:CreateTab("Misc", 4483362458)
+
+-- Rejoin
+MiscTab:CreateButton({
+    Name = "Rejoin Server",
+    Callback = function()
+        game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+    end
+})
+
+-- Server Hop
+MiscTab:CreateButton({
+    Name = "Server Hop",
+    Callback = function()
+        local HttpService = game:GetService("HttpService")
+        local TeleportService = game:GetService("TeleportService")
+
+        local function serverHop()
+            local req = syn and syn.request or http and http.request or http_request
+            local servers = {}
+            local response = req({
+                Url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+            })
+
+            if response and response.StatusCode == 200 then
+                local data = HttpService:JSONDecode(response.Body)
+                for _, v in ipairs(data.data) do
+                    if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                        table.insert(servers, v.id)
+                    end
+                end
+                if #servers > 0 then
+                    TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
+                end
+            end
+        end
+
+        pcall(serverHop)
+    end
+})
+
+-- Copy Discord Link
+MiscTab:CreateButton({
+    Name = "Copy Discord Link",
+    Callback = function()
+        setclipboard("https://discord.gg/yourserver")
+    end
+})
+
+-- Reset Character
+MiscTab:CreateButton({
+    Name = "Reset Character",
+    Callback = function()
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            char:BreakJoints()
+        end
+    end
+})
+
+-- Mute / Unmute
+local muted = false
+MiscTab:CreateToggle({
+    Name = "Mute Game",
+    CurrentValue = false,
+    Callback = function(Value)
+        muted = Value
+        local ss = game:GetService("SoundService")
+        ss.RespectFilteringEnabled = false
+        ss.Volume = muted and 0 or 1
+    end
+})
+
+-- FPS Boost
+MiscTab:CreateButton({
+    Name = "FPS Boost",
+    Callback = function()
+        for _, obj in pairs(game:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                obj.Material = Enum.Material.SmoothPlastic
+                obj.Reflectance = 0
+            elseif obj:IsA("Decal") or obj:IsA("Texture") then
+                obj:Destroy()
+            end
+        end
+
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        game:GetService("Lighting").GlobalShadows = false
+        game:GetService("Lighting").FogEnd = 100000
+    end
+})
+
+-- Graphics Toggle
+local lowGraphics = false
+MiscTab:CreateToggle({
+    Name = "Low Graphics Mode",
+    CurrentValue = false,
+    Callback = function(Value)
+        lowGraphics = Value
+        local lighting = game:GetService("Lighting")
+        if lowGraphics then
+            lighting.GlobalShadows = false
+            lighting.FogEnd = 1e9
+            settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        else
+            lighting.GlobalShadows = true
+            lighting.FogEnd = 1000
+            settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+        end
+    end
+})
+
+-- Remove Fog
+MiscTab:CreateButton({
+    Name = "Remove Fog",
+    Callback = function()
+        local lighting = game:GetService("Lighting")
+        lighting.FogEnd = 1e9
+        lighting.FogStart = 1e9
+    end
+})
+
+-- Full Bright
+MiscTab:CreateButton({
+    Name = "Full Bright",
+    Callback = function()
+        local lighting = game:GetService("Lighting")
+        lighting.Brightness = 2
+        lighting.ClockTime = 12
+        lighting.FogEnd = 1e9
+        lighting.GlobalShadows = false
+        lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+    end
+})
+
+
