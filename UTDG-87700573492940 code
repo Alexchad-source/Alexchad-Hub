@@ -22,7 +22,7 @@ local function equipFirstTool()
 end
 
 Tab:CreateToggle({
-    Name = "Auto Ores",
+    Name = "Auto Ores(drill needs to be in first inventory slot)",
     CurrentValue = false,
     Callback = function(Value)
         autoOreEnabled = Value
