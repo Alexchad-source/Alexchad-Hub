@@ -192,12 +192,11 @@ MiscTab:CreateButton({
     Name = "Copy Discord Link",
     Callback = function()
         setclipboard("https://discord.gg/TBJgw6MHcB")
-        Window:Notify({
-            Title = "Copied!",
-            Content = "Copied Discord-Link!",
+        Rayfield:Notify({
+            Title = "Erfolg",
+            Content = "Discord-Link wurde kopiert!",
             Duration = 3
         })
     end
 })
-
 
