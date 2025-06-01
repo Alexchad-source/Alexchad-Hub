@@ -187,18 +187,7 @@ for _, v in pairs(game.Players:GetPlayers()) do
 	end
 end
 
-PlayerTab:CreateDropdown({
-	Name = "Teleport to Player",
-	Options = players,
-	CurrentOption = players[1],
-	Callback = function(option)
-		local target = game.Players:FindFirstChild(option)
-		local char = game.Players.LocalPlayer.Character
-		if target and target.Character and char then
-			char:MoveTo(target.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0))
-		end
-	end,
-})
+
 MiscTab:CreateButton({
     Name = "Copy Discord Link",
     Callback = function()
