@@ -74,7 +74,7 @@ PlayerTab:CreateToggle({
 local flying = false
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("RunService")
-local speed = 5
+local speed = 100
 
 PlayerTab:CreateToggle({
    Name = "Fly (WASD)",
