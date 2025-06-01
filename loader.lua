@@ -5,7 +5,7 @@ local placeScripts = {
 }
 
 -- Universelles GUI (für nicht unterstützte Spiele)
-local fallbackScriptUrl = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/main/universal_gui.lua"
+local fallbackScriptUrl = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/refs/heads/main/universial.lua"
 
 local placeId = game.PlaceId
 local scriptUrl = placeScripts[placeId] or fallbackScriptUrl
