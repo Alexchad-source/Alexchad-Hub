@@ -1,6 +1,7 @@
 local placeScripts = {
     [87700573492940] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/UTDG-87700573492940%20code",
     [662417684] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/lucky%20blcok%20battlegrounds.lua",
+    [2413927524] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/therakerematsered.lua",
 }
 
 -- Universelles script(for unsoppurted games)
