@@ -61,6 +61,45 @@ local Window = Rayfield:CreateWindow({
 })
 local Main = Window:CreateTab("Main", 4483362458)
 
+--Fullbright
+
+local originalLighting = {
+	Brightness = Lighting.Brightness,
+	ClockTime = Lighting.ClockTime,
+	FogEnd = Lighting.FogEnd,
+	GlobalShadows = Lighting.GlobalShadows,
+	OutdoorAmbient = Lighting.OutdoorAmbient
+}
+
+local fullBrightLoop
+
+Main:CreateToggle({
+	Name = "Full Bright (Loop)",
+	CurrentValue = false,
+	Callback = function(v)
+		if v then
+			fullBrightLoop = task.spawn(function()
+				while true do
+					Lighting.Brightness = 3
+					Lighting.ClockTime = 14
+					Lighting.FogEnd = 1e10
+					Lighting.GlobalShadows = false
+					Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+					task.wait(0.2)
+				end
+			end)
+		else
+			if fullBrightLoop then
+				task.cancel(fullBrightLoop)
+				fullBrightLoop = nil
+			end
+			for k, val in pairs(originalLighting) do
+				Lighting[k] = val
+			end
+		end
+	end,
+})
+
 
 
 
