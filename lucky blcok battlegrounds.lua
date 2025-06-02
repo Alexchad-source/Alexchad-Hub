@@ -103,6 +103,47 @@ for _, block in ipairs(blockTypes) do
         end,
     })
 end
+
+-- Combat Tab
+local CombatTab = Window:CreateTab("Combat", 4483362458)
+
+-- Kill Aura Toggle
+CombatTab:CreateToggle({
+    Name = "Kill Aura",
+    CurrentValue = false,
+    Callback = function(Value)
+        getgenv().KillAura = Value
+        task.spawn(function()
+            while getgenv().KillAura do
+                local player = game.Players.LocalPlayer
+                local char = player.Character
+                if char and char:FindFirstChild("HumanoidRootPart") then
+                    for _, other in ipairs(game.Players:GetPlayers()) do
+                        if other ~= player and other.Character and other.Character:FindFirstChild("Humanoid") and other.Character:FindFirstChild("HumanoidRootPart") then
+                            local dist = (char.HumanoidRootPart.Position - other.Character.HumanoidRootPart.Position).Magnitude
+                            if dist <= 15 then
+                                -- Simulate Tool Activation
+                                local tool = char:FindFirstChildOfClass("Tool")
+                                if tool then
+                                    tool:Activate()
+                                end
+                            end
+                        end
+                    end
+                end
+                task.wait(0.2)
+            end
+        end)
+    end,
+})
+
+
+
+
+
+
+
+
 -- Player Tab
 local PlayerTab = Window:CreateTab("Player", 4483362458)
 
