@@ -106,6 +106,8 @@ end
 
 -- Combat Tab
 local CombatTab = Window:CreateTab("Combat", 4483362458)
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
 -- Kill Aura Toggle
 local RunService = game:GetService("RunService")
@@ -155,7 +157,95 @@ CombatTab:CreateToggle({
     end,
 })
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
+local playerNames = {}
+local function updatePlayerNames()
+    playerNames = {}
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            table.insert(playerNames, player.Name)
+        end
+    end
+end
+updatePlayerNames()
+
+local selectedPlayerName = nil
+local bringAllEnabled = false
+local bringSelectedEnabled = false
+local runService = game:GetService("RunService")
+
+-- Bring All Toggle
+CombatTab:CreateToggle({
+    Name = "Bring All Players",
+    CurrentValue = false,
+    Callback = function(value)
+        bringAllEnabled = value
+        if value then
+            -- Teleport loop
+            task.spawn(function()
+                while bringAllEnabled do
+                    local character = LocalPlayer.Character
+                    local hrp = character and character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        for _, player in pairs(Players:GetPlayers()) do
+                            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                                player.Character.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(2, 0, 0)
+                            end
+                        end
+                    end
+                    task.wait(0.5) -- alle 0.5 Sekunden wiederholen
+                end
+            end)
+        end
+    end,
+})
+
+-- Dropdown für Spieler auswählen
+CombatTab:CreateDropdown({
+    Name = "Select Player",
+    Options = playerNames,
+    CurrentOption = nil,
+    Callback = function(option)
+        selectedPlayerName = option
+    end,
+})
+
+-- Bring Selected Player Toggle
+CombatTab:CreateToggle({
+    Name = "Bring Selected Player",
+    CurrentValue = false,
+    Callback = function(value)
+        bringSelectedEnabled = value
+        if value then
+            task.spawn(function()
+                while bringSelectedEnabled do
+                    if selectedPlayerName then
+                        local targetPlayer = Players:FindFirstChild(selectedPlayerName)
+                        local character = LocalPlayer.Character
+                        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+                        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") and hrp then
+                            targetPlayer.Character.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(2, 0, 0)
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end,
+})
+
+-- Update dropdown wenn Spieler joinen/leave
+Players.PlayerAdded:Connect(function()
+    updatePlayerNames()
+    CombatTab:UpdateDropdownOptions("Select Player", playerNames)
+end)
+
+Players.PlayerRemoving:Connect(function()
+    updatePlayerNames()
+    CombatTab:UpdateDropdownOptions("Select Player", playerNames)
+end)
 
 
 
