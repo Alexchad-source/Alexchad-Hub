@@ -21,7 +21,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 -- Folder to teleport from
-local sourceFolder = game:GetService("Workspace"):WaitForChild("LifeBricks") -- Change as needed
+local sourceFolder = game:GetService("Workspace"):WaitForChild("Lifebricks") -- Change as needed
 
 -- Function to teleport all items
 local function teleportAllToLifebricks()
