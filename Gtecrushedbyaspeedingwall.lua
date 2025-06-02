@@ -23,26 +23,26 @@ local LocalPlayer = Players.LocalPlayer
 -- Folder to teleport from
 local sourceFolder = game:GetService("Workspace"):WaitForChild("Lifebricks") -- Change as needed
 
--- Function to teleport all items
-local function teleportAllToLifebricks()
-    local target = workspace:FindFirstChild("Lifebricks")
-    if not target then return end
+local function teleportAllToPlayer()
+    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
 
-    local basePos = target.Position
+    local basePos = hrp.Position
 
     for _, obj in pairs(sourceFolder:GetChildren()) do
         if obj:IsA("BasePart") then
             obj.CFrame = CFrame.new(basePos + Vector3.new(math.random(-5, 5), 2, math.random(-5, 5)))
-        elseif obj:IsA("Model") and obj:FindFirstChild("PrimaryPart") then
+        elseif obj:IsA("Model") and obj.PrimaryPart then
             obj:SetPrimaryPartCFrame(CFrame.new(basePos + Vector3.new(math.random(-5, 5), 2, math.random(-5, 5))))
         end
     end
 end
 
+
 -- Button on MainTab
 MainTab:CreateButton({
     Name = "Bring All Objects to Lifebricks",
-    Callback = teleportAllToLifebricks,
+    Callback = teleportAllToPlayer,
 })
 
 
