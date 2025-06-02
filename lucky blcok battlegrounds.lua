@@ -108,34 +108,53 @@ end
 local CombatTab = Window:CreateTab("Combat", 4483362458)
 
 -- Kill Aura Toggle
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local killAuraEnabled = false
+local reachDistance = 30 -- Erhöhte Reichweite
+
+-- Toggle im Combat Tab
 CombatTab:CreateToggle({
-    Name = "Kill Aura",
+    Name = "Kill Aura (Reach Bypass)",
     CurrentValue = false,
     Callback = function(Value)
-        getgenv().KillAura = Value
-        task.spawn(function()
-            while getgenv().KillAura do
-                local player = game.Players.LocalPlayer
-                local char = player.Character
-                if char and char:FindFirstChild("HumanoidRootPart") then
-                    for _, other in ipairs(game.Players:GetPlayers()) do
-                        if other ~= player and other.Character and other.Character:FindFirstChild("Humanoid") and other.Character:FindFirstChild("HumanoidRootPart") then
-                            local dist = (char.HumanoidRootPart.Position - other.Character.HumanoidRootPart.Position).Magnitude
-                            if dist <= 15 then
-                                -- Simulate Tool Activation
-                                local tool = char:FindFirstChildOfClass("Tool")
-                                if tool then
-                                    tool:Activate()
+        killAuraEnabled = Value
+        if killAuraEnabled then
+            task.spawn(function()
+                while killAuraEnabled do
+                    local character = LocalPlayer.Character
+                    if character then
+                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                        local tool = character:FindFirstChildOfClass("Tool")
+                        if humanoidRootPart and tool then
+                            for _, player in pairs(Players:GetPlayers()) do
+                                if player ~= LocalPlayer and player.Character then
+                                    local enemyHRP = player.Character:FindFirstChild("HumanoidRootPart")
+                                    local enemyHumanoid = player.Character:FindFirstChildOfClass("Humanoid")
+                                    if enemyHRP and enemyHumanoid and enemyHumanoid.Health > 0 then
+                                        local distance = (humanoidRootPart.Position - enemyHRP.Position).Magnitude
+                                        if distance <= reachDistance then
+                                            -- Tool aktivieren (Angriff)
+                                            pcall(function()
+                                                tool:Activate()
+                                            end)
+                                            -- Optional: Bewege Tool (wenn möglich) näher zum Gegner, z.B. Tool.Handle.Position = enemyHRP.Position
+                                            -- Oder simuliere Hitbox
+                                        end
+                                    end
                                 end
                             end
                         end
                     end
+                    task.wait(0.1)
                 end
-                task.wait(0.2)
-            end
-        end)
+            end)
+        end
     end,
 })
+
 
 
 
