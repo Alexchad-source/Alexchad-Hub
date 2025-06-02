@@ -76,11 +76,11 @@ MainTab:CreateToggle({
 local autoFarmEnabledblatant = false
 
 MainTab:CreateToggle({
-    Name = "Auto Farm Lifebricks(blatant) (1->4)",
+    Name = "Auto Farm Lifebricks (blatant) (1->4)", -- geänderter Name
     CurrentValue = false,
     Callback = function(value)
         autoFarmEnabledblatant = value
-        if autoFarmEnabledblatant then
+        if autoFarmEnabledblatant then  -- korrigierte Variable
             task.spawn(function()
                 while autoFarmEnabledblatant do
                     local char = LocalPlayer.Character
@@ -106,12 +106,10 @@ MainTab:CreateToggle({
                         end
                     end
 
-                    -- Reset character
                     if char then
                         char:BreakJoints()
                     end
 
-                    -- Wait for new character to spawn & update hrp reference
                     LocalPlayer.CharacterAdded:Wait()
                     char = LocalPlayer.Character
                     hrp = char and char:WaitForChild("HumanoidRootPart", 5)
@@ -120,12 +118,13 @@ MainTab:CreateToggle({
                         continue
                     end
 
-                    task.wait(0.1) -- delay before next run
+                    task.wait(0.1)
                 end
             end)
         end
     end,
 })
+
 
 
 
