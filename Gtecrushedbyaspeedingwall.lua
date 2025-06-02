@@ -30,11 +30,10 @@ MainTab:CreateToggle({
         if autoFarmEnabled then
             task.spawn(function()
                 while autoFarmEnabled do
-                    -- Check character and HRP
                     local char = LocalPlayer.Character
                     local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    
                     if not hrp then
-                        -- Wait for character respawn if missing
                         LocalPlayer.CharacterAdded:Wait()
                         char = LocalPlayer.Character
                         hrp = char and char:FindFirstChild("HumanoidRootPart")
@@ -44,30 +43,37 @@ MainTab:CreateToggle({
                         end
                     end
 
-                    -- Teleport sequentially to parts named "1" to "4"
                     for i = 1, 4 do
                         local part = Lifebricks:FindFirstChild(tostring(i))
                         if part and part:IsA("BasePart") then
-                            hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0) -- teleport slightly above part
-                            task.wait(0.8) -- wait before next teleport
+                            hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0)
+                            task.wait(0.8)
                         else
-                            -- If part missing, skip to next loop
                             break
                         end
                     end
 
-                    -- Reset character after finishing
+                    -- Reset character
                     if char then
                         char:BreakJoints()
                     end
 
-                    -- Wait a bit before restarting loop
-                    task.wait(3)
+                    -- Wait for new character to spawn & update hrp reference
+                    LocalPlayer.CharacterAdded:Wait()
+                    char = LocalPlayer.Character
+                    hrp = char and char:WaitForChild("HumanoidRootPart", 5)
+                    if not hrp then
+                        task.wait(1)
+                        continue
+                    end
+
+                    task.wait(3) -- delay before next run
                 end
             end)
         end
     end,
 })
+
 
 
 
