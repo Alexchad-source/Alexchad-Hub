@@ -3,7 +3,7 @@ local placeScripts = {
     [662417684] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/lucky%20blcok%20battlegrounds.lua",
 }
 
--- Universelles GUI (für nicht unterstützte Spiele)
+-- Universelles script(for unsoppurted games)
 local fallbackScriptUrl = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/refs/heads/main/universial.lua"
 
 local placeId = game.PlaceId
