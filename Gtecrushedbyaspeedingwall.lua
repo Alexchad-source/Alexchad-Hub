@@ -13,8 +13,62 @@ local Window = Rayfield:CreateWindow({
    KeySystem = false,
 })
 
---Main Tab
+-- MainTab creation
 local MainTab = Window:CreateTab("Main", 4483362458)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Lifebricks = workspace:WaitForChild("Lifebricks")
+
+local autoFarmEnabled = false
+
+MainTab:CreateToggle({
+    Name = "Auto Farm Lifebricks (1->4)",
+    CurrentValue = false,
+    Callback = function(value)
+        autoFarmEnabled = value
+        if autoFarmEnabled then
+            task.spawn(function()
+                while autoFarmEnabled do
+                    -- Check character and HRP
+                    local char = LocalPlayer.Character
+                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    if not hrp then
+                        -- Wait for character respawn if missing
+                        LocalPlayer.CharacterAdded:Wait()
+                        char = LocalPlayer.Character
+                        hrp = char and char:FindFirstChild("HumanoidRootPart")
+                        if not hrp then
+                            task.wait(1)
+                            continue
+                        end
+                    end
+
+                    -- Teleport sequentially to parts named "1" to "4"
+                    for i = 1, 4 do
+                        local part = Lifebricks:FindFirstChild(tostring(i))
+                        if part and part:IsA("BasePart") then
+                            hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0) -- teleport slightly above part
+                            task.wait(0.8) -- wait before next teleport
+                        else
+                            -- If part missing, skip to next loop
+                            break
+                        end
+                    end
+
+                    -- Reset character after finishing
+                    if char then
+                        char:BreakJoints()
+                    end
+
+                    -- Wait a bit before restarting loop
+                    task.wait(3)
+                end
+            end)
+        end
+    end,
+})
+
 
 
 -- PLAYER TAB
