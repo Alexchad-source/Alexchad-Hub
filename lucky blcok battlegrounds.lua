@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- Create Main Window
 local Window = Rayfield:CreateWindow({
-    Name = "Chatgpt Hub",
+    Name = "Alexchad Hub",
     LoadingTitle = "loading LB Script...",
     LoadingSubtitle = "by Alex",
     ConfigurationSaving = {
