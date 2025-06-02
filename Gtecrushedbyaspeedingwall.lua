@@ -38,7 +38,7 @@ MainTab:CreateToggle({
                         char = LocalPlayer.Character
                         hrp = char and char:FindFirstChild("HumanoidRootPart")
                         if not hrp then
-                            task.wait(1)
+                            task.wait(0.1)
                             continue
                         end
                     end
@@ -47,7 +47,7 @@ MainTab:CreateToggle({
                         local part = Lifebricks:FindFirstChild(tostring(i))
                         if part and part:IsA("BasePart") then
                             hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0)
-                            task.wait(0.8)
+                            task.wait(0.08)
                         else
                             break
                         end
@@ -63,17 +63,69 @@ MainTab:CreateToggle({
                     char = LocalPlayer.Character
                     hrp = char and char:WaitForChild("HumanoidRootPart", 5)
                     if not hrp then
-                        task.wait(1)
+                        task.wait(0.1)
                         continue
                     end
 
-                    task.wait(3) -- delay before next run
+                    task.wait(0.3) -- delay before next run
                 end
             end)
         end
     end,
 })
+local autoFarmEnabledblatant = false
 
+MainTab:CreateToggle({
+    Name = "Auto Farm Lifebricks (1->4)",
+    CurrentValue = false,
+    Callback = function(value)
+        autoFarmEnabledblatant = value
+        if autoFarmEnabled then
+            task.spawn(function()
+                while autoFarmEnabledblatant do
+                    local char = LocalPlayer.Character
+                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    
+                    if not hrp then
+                        LocalPlayer.CharacterAdded:Wait()
+                        char = LocalPlayer.Character
+                        hrp = char and char:FindFirstChild("HumanoidRootPart")
+                        if not hrp then
+                            task.wait(0.1)
+                            continue
+                        end
+                    end
+
+                    for i = 1, 4 do
+                        local part = Lifebricks:FindFirstChild(tostring(i))
+                        if part and part:IsA("BasePart") then
+                            hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0)
+                            task.wait(0.08)
+                        else
+                            break
+                        end
+                    end
+
+                    -- Reset character
+                    if char then
+                        char:BreakJoints()
+                    end
+
+                    -- Wait for new character to spawn & update hrp reference
+                    LocalPlayer.CharacterAdded:Wait()
+                    char = LocalPlayer.Character
+                    hrp = char and char:WaitForChild("HumanoidRootPart", 5)
+                    if not hrp then
+                        task.wait(0.1)
+                        continue
+                    end
+
+                    task.wait(0.1) -- delay before next run
+                end
+            end)
+        end
+    end,
+})
 
 
 
