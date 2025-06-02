@@ -16,6 +16,34 @@ local Window = Rayfield:CreateWindow({
 --Main Tab
 local MainTab = Window:CreateTab("Main", 4483362458)
 
+-- Services
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Folder to teleport from
+local sourceFolder = game:GetService("Workspace"):WaitForChild("LifeBricks") -- Change as needed
+
+-- Function to teleport all items
+local function teleportAllToLifebricks()
+    local target = workspace:FindFirstChild("Lifebricks")
+    if not target then return end
+
+    local basePos = target.Position
+
+    for _, obj in pairs(sourceFolder:GetChildren()) do
+        if obj:IsA("BasePart") then
+            obj.CFrame = CFrame.new(basePos + Vector3.new(math.random(-5, 5), 2, math.random(-5, 5)))
+        elseif obj:IsA("Model") and obj:FindFirstChild("PrimaryPart") then
+            obj:SetPrimaryPartCFrame(CFrame.new(basePos + Vector3.new(math.random(-5, 5), 2, math.random(-5, 5))))
+        end
+    end
+end
+
+-- Button on MainTab
+MainTab:CreateButton({
+    Name = "Bring All Objects to Lifebricks",
+    Callback = teleportAllToLifebricks,
+})
 
 
 
