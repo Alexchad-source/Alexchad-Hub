@@ -1,6 +1,6 @@
 local placeScripts = {
-    [87700573492940] = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/refs/heads/main/UTDG-87700573492940%20code",
-    [662417684] = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/refs/heads/main/lucky%20blcok%20battlegrounds.lua",
+    [87700573492940] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/UTDG-87700573492940%20code",
+    [662417684] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/lucky%20blcok%20battlegrounds.lua",
     -- add more place IDs and URLs here
 }
 
