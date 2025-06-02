@@ -195,7 +195,7 @@ CombatTab:CreateToggle({
                             end
                         end
                     end
-                    task.wait(0.5) -- alle 0.5 Sekunden wiederholen
+                    task.wait(0.01) -- alle 0.5 Sekunden wiederholen
                 end
             end)
         end
@@ -229,7 +229,7 @@ CombatTab:CreateToggle({
                             targetPlayer.Character.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(2, 0, 0)
                         end
                     end
-                    task.wait(0.5)
+                    task.wait(0.005)
                 end
             end)
         end
