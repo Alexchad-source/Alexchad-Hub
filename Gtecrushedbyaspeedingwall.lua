@@ -76,7 +76,7 @@ MainTab:CreateToggle({
 local autoFarmEnabledblatant = false
 
 MainTab:CreateToggle({
-    Name = "Auto Farm Lifebricks (1->4)",
+    Name = "Auto Farm Lifebricks(blatant) (1->4)",
     CurrentValue = false,
     Callback = function(value)
         autoFarmEnabledblatant = value
