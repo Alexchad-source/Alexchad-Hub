@@ -119,5 +119,26 @@ lp.CharacterAdded:Connect(function()
         setupSprint()
     end
 end)
+local Camera = game:GetService("Workspace").CurrentCamera
+local StarterPlayer = game:GetService("StarterPlayer")
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+
+Main:CreateToggle({
+	Name = "Force Third Person",
+	CurrentValue = false,
+	Callback = function(v)
+		if v then
+			lp.CameraMode = Enum.CameraMode.Classic
+			lp.CameraMinZoomDistance = 5
+			lp.CameraMaxZoomDistance = 15
+		else
+			-- Reset to game default
+			lp.CameraMode = Enum.CameraMode.Custom
+			lp.CameraMinZoomDistance = 0.5
+			lp.CameraMaxZoomDistance = 128
+		end
+	end,
+})
 
 
