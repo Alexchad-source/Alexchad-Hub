@@ -13,42 +13,6 @@ local Window = Rayfield:CreateWindow({
    KeySystem = false,
 })
 
-local MainTab = Window:CreateTab("Main", 4483362458) -- ✅ Fixed here
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local player = Players.LocalPlayer
-local hrp = player.Character and player.Character:WaitForChild("HumanoidRootPart")
-local itemsFolder = workspace:WaitForChild("Areas"):WaitForChild("Area1"):WaitForChild("Items")
-
-local autoCollectConnection
-
-MainTab:CreateToggle({
-    Name = "Auto Collect Beginner Area",
-    CurrentValue = false,
-    Callback = function(Value)
-        if Value then
-            autoCollectConnection = RunService.RenderStepped:Connect(function()
-                if not hrp then
-                    hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                    if not hrp then return end
-                end
-
-                for _, item in ipairs(itemsFolder:GetChildren()) do
-                    if item:IsA("BasePart") and not item.Anchored then
-                        item.CFrame = hrp.CFrame + Vector3.new(math.random(-3,3), math.random(1,3), math.random(-3,3))
-                    end
-                end
-            end)
-        else
-            if autoCollectConnection then
-                autoCollectConnection:Disconnect()
-                autoCollectConnection = nil
-            end
-        end
-    end,
-})
 
 
 -- PLAYER TAB
