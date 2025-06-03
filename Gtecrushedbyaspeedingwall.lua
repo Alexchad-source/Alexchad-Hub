@@ -19,7 +19,72 @@ local MainTab = Window:CreateTab("Main", 4483362458)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Lifebricks = workspace:WaitForChild("Lifebricks")
+
+MainTab:CreateToggle({
+    Name = "AutoFarm",
+    CurrentValue = false,
+    Flag = "AutoFarm",
+    Callback = function(v)
+        getgenv().Farm = v
+        getgenv().Ready = true
+
+        local plr = game:GetService("Players").LocalPlayer
+        local tweenService = game:GetService("TweenService")
+        local info = TweenInfo.new(1, Enum.EasingStyle.Quad)
+
+        local points = {
+            CFrame.new(-90.638649, 3.18593025, -118.814575, -0.524689496, -2.28586092e-08, -0.851293683, -4.89144636e-09, 1, -2.3836801e-08, 0.851293683, -8.34286151e-09, -0.524689496),
+            CFrame.new(-267.906921, 3.18400621, -418.790344, -0.984630346, 5.51727508e-09, -0.17465131, -1.22838211e-08, 1, 1.00842634e-07, 0.17465131, 1.01438104e-07, -0.984630346),
+            CFrame.new(-94.5550842, 3.20353055, -716.802185, 0.570035696, 1.37251783e-08, -0.821619928, 2.22662369e-08, 1, 3.21532241e-08, 0.821619928, -3.66228683e-08, 0.570035696),
+            CFrame.new(-267.651886, 3.17397857, -1017.52075, 0.0818531215, 4.43114914e-08, 0.996644378, 4.41357066e-08, 1, -4.80854929e-08, -0.996644378, 4.79235531e-08, 0.0818531215)
+        }
+
+        local function tp(cf)
+            local success = pcall(function()
+                local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    local tween = tweenService:Create(hrp, info, {CFrame = cf})
+                    tween:Play()
+                end
+            end)
+            return success
+        end
+
+        task.spawn(function()
+            while getgenv().Farm do
+                if getgenv().Ready then
+                    getgenv().Ready = false
+
+                    for _, cf in ipairs(points) do
+                        if not getgenv().Farm then return end
+                        tp(cf)
+                        task.wait(1)
+
+                        local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp and (hrp.Position - cf.Position).Magnitude > 1 then
+                            tp(cf) -- retry if not accurate
+                        end
+                    end
+
+                    local hum = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid")
+                    if hum then hum.Health = 0 end
+
+                    task.wait(7)
+                    getgenv().Ready = true
+                end
+                task.wait(0.1)
+            end
+        end)
+    end
+})
+
+
+
+
 local respawnBypassEnabled = false
+
+
+
 
 MainTab:CreateToggle({
     Name = "Bypass Respawn Cooldown",
