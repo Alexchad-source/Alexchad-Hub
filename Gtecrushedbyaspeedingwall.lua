@@ -100,7 +100,7 @@ MainTab:CreateToggle({
                         local part = Lifebricks:FindFirstChild(tostring(i))
                         if part and part:IsA("BasePart") then
                             hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0)
-                            task.wait(0.08)
+                            task.wait(0.3)
                         else
                             break
                         end
