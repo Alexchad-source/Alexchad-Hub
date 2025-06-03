@@ -23,27 +23,33 @@ local itemsFolder = workspace:WaitForChild("Areas"):WaitForChild("Area1"):WaitFo
 local autoCollectConnection
 
 MainTab:CreateToggle({
-    Name = "Auto Collect Beginner Area (Touch)",
+    Name = "Auto Collect Beginner Area (TP to Items)",
     CurrentValue = false,
     Callback = function(Value)
-        if Value then
-            autoCollectConnection = RunService.RenderStepped:Connect(function()
+        autoCollectEnabled = Value
+
+        task.spawn(function()
+            while autoCollectEnabled do
                 local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                if not hrp then return end
+                if not hrp then
+                    player.CharacterAdded:Wait()
+                    task.wait(1)
+                    hrp = player.Character and player.Character:WaitForChild("HumanoidRootPart")
+                end
 
                 for _, item in ipairs(itemsFolder:GetChildren()) do
-                    if item:IsA("BasePart") and not item.Anchored then
-                        firetouchinterest(hrp, item, 0) -- Touch begin
-                        firetouchinterest(hrp, item, 1) -- Touch end
+                    if not autoCollectEnabled then break end
+                    if item:IsA("BasePart") and item:IsDescendantOf(workspace) then
+                        hrp.CFrame = item.CFrame + Vector3.new(0, 3, 0) -- teleport slightly above item
+                        firetouchinterest(hrp, item, 0)
+                        firetouchinterest(hrp, item, 1)
+                        task.wait(0.15) -- delay to allow touch to register
                     end
                 end
-            end)
-        else
-            if autoCollectConnection then
-                autoCollectConnection:Disconnect()
-                autoCollectConnection = nil
+
+                task.wait(0.5)
             end
-        end
+        end)
     end,
 })
 
