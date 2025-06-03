@@ -20,19 +20,13 @@ local player = Players.LocalPlayer
 local hrp = player.Character and player.Character:WaitForChild("HumanoidRootPart")
 local itemsFolder = workspace:WaitForChild("Areas"):WaitForChild("Area1"):WaitForChild("Items")
 
-local autoCollectEnabled = false
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-
-local player = Players.LocalPlayer
-local hrp = player.Character and player.Character:WaitForChild("HumanoidRootPart")
-local itemsFolder = workspace:WaitForChild("Areas"):WaitForChild("Area1"):WaitForChild("Items")
 
 local autoCollectConnection
 
 MainTab:CreateToggle({
-    Name = "Auto Collect Beginner Area",
+    Name = "Auto Collect Beginner Area (Touch)",
     CurrentValue = false,
     Callback = function(Value)
         if Value then
@@ -44,7 +38,8 @@ MainTab:CreateToggle({
 
                 for _, item in ipairs(itemsFolder:GetChildren()) do
                     if item:IsA("BasePart") and not item.Anchored then
-                        item.CFrame = hrp.CFrame + Vector3.new(math.random(-3,3), math.random(1,3), math.random(-3,3))
+                        firetouchinterest(hrp, item, 0) -- Touch begin
+                        firetouchinterest(hrp, item, 1) -- Touch end
                     end
                 end
             end)
@@ -56,7 +51,6 @@ MainTab:CreateToggle({
         end
     end,
 })
-
 
 
 
