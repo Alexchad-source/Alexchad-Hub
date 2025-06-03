@@ -22,34 +22,6 @@ local Lifebricks = workspace:WaitForChild("Lifebricks")
 
 
 
-
-
-local respawnBypassEnabled = false
-
-
-
-
-MainTab:CreateToggle({
-    Name = "Bypass Respawn Cooldown",
-    CurrentValue = false,
-    Callback = function(Value)
-        respawnBypassEnabled = Value
-        if respawnBypassEnabled then
-            game.Players.LocalPlayer.CharacterAdded:Connect(function(char)
-                char:WaitForChild("Humanoid").Died:Connect(function()
-                    if respawnBypassEnabled then
-                        task.wait(0.1)
-                        local lp = game.Players.LocalPlayer
-                        if lp:FindFirstChild("Character") then
-                            lp:LoadCharacter() -- immediately reloads character
-                        end
-                    end
-                end)
-            end)
-        end
-    end,
-})
-
 local autoFarmEnabled = false
 
 MainTab:CreateToggle({
@@ -151,6 +123,79 @@ MainTab:CreateToggle({
             end)
         end
     end,
+})
+
+MainTab:CreateButton({
+    Name = "Delete Wall",
+    Callback = function()
+        local wall = game:GetService('Workspace'):FindFirstChild("Wall")
+        if wall then
+            wall:Destroy()
+        end
+    end
+})
+
+MainTab:CreateButton({
+    Name = "Delete Kill Blocks",
+    Callback = function()
+        for i,v in pairs(game:GetService('Workspace'):GetChildren()) do
+            if v.Name == "Awesome Lava!" then
+                v:Destroy()
+            elseif v.Name == "Smooth Block Model" then
+                if v:FindFirstChild("Script") then v.Script:Destroy() end
+                if v:FindFirstChild("TouchInterest") then v.TouchInterest:Destroy() end
+            elseif v.Name == "lava" or v.Name == "Lava" then
+                if v:FindFirstChild("Script") then v.Script:Destroy() end
+                if v:FindFirstChild("TouchInterest") then v.TouchInterest:Destroy() end
+            end
+        end
+    end
+})
+
+MainTab:CreateButton({
+    Name = "Delete impossiwall wall",
+    Callback = function()
+        local wall2 = game.Workspace:FindFirstChild("Wall2")
+        if wall2 then
+            wall2:Destroy()
+        end
+    end
+})
+
+MainTab:CreateButton({
+    Name = "Finish impossible obby",
+    Callback = function()
+        local plr = game:GetService('Players').LocalPlayer
+        local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+
+        local oldcf = hrp.CFrame
+        hrp.CFrame = CFrame.new(-5066.81299, 3354.42676, -44055.9648, 0.700624108, 0, 0.71353054, 0, 1, 0, -0.71353054, 0, 0.700624108)
+        wait(3)
+
+        for _ = 1, 12 do
+            if hrp then hrp.CFrame = oldcf end
+            wait(0.5)
+        end
+    end
+})
+
+MainTab:CreateButton({
+    Name = "Finish impossiwall",
+    Callback = function()
+        local plr = game:GetService('Players').LocalPlayer
+        local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+
+        local oldcf = hrp.CFrame
+        hrp.CFrame = CFrame.new(2795.28174, 2062.15332, -14428.668, -1, 0, 0, 0, 0, 1, 0, 1, -0)
+        wait(3)
+
+        for _ = 1, 12 do
+            if hrp then hrp.CFrame = oldcf end
+            wait(0.5)
+        end
+    end
 })
 
 
