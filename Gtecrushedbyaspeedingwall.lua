@@ -76,9 +76,7 @@ MainTab:CreateToggle({
                     end
 
                     -- Reset character
-                    if char then
-                        char:BreakJoints()
-                    end
+                    
 
                     -- Wait for new character to spawn & update hrp reference
                     LocalPlayer.CharacterAdded:Wait()
