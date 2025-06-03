@@ -12,7 +12,7 @@ local Window = Rayfield:CreateWindow({
    },
    KeySystem = false,
 })
-local MainTab = Windows:Createtab("Main", 4483362458)
+local MainTab = Window:Createtab("Main", 4483362458)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
