@@ -128,7 +128,7 @@ MainTab:CreateToggle({
 MainTab:CreateButton({
     Name = "Delete Wall",
     Callback = function()
-        local wall = game:GetService('Workspace'):FindFirstChild("Wall")
+        local wall = workspace.Map.Tunnel.Wall
         if wall then
             wall:Destroy()
         end
