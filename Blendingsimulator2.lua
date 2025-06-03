@@ -12,16 +12,13 @@ local Window = Rayfield:CreateWindow({
    },
    KeySystem = false,
 })
-local MainTab = Window:Createtab("Main", 4483362458)
+
+local MainTab = Window:CreateTab("Main", 4483362458) -- ✅ Fixed typo here
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-
 local player = Players.LocalPlayer
-local hrp = player.Character and player.Character:WaitForChild("HumanoidRootPart")
 local itemsFolder = workspace:WaitForChild("Areas"):WaitForChild("Area1"):WaitForChild("Items")
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 
 local autoCollectConnection
 
@@ -31,10 +28,8 @@ MainTab:CreateToggle({
     Callback = function(Value)
         if Value then
             autoCollectConnection = RunService.RenderStepped:Connect(function()
-                if not hrp then
-                    hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                    if not hrp then return end
-                end
+                local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
 
                 for _, item in ipairs(itemsFolder:GetChildren()) do
                     if item:IsA("BasePart") and not item.Anchored then
@@ -51,6 +46,7 @@ MainTab:CreateToggle({
         end
     end,
 })
+
 
 
 
