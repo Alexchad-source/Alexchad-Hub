@@ -19,6 +19,28 @@ local MainTab = Window:CreateTab("Main", 4483362458)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Lifebricks = workspace:WaitForChild("Lifebricks")
+local respawnBypassEnabled = false
+
+MainTab:CreateToggle({
+    Name = "Bypass Respawn Cooldown",
+    CurrentValue = false,
+    Callback = function(Value)
+        respawnBypassEnabled = Value
+        if respawnBypassEnabled then
+            game.Players.LocalPlayer.CharacterAdded:Connect(function(char)
+                char:WaitForChild("Humanoid").Died:Connect(function()
+                    if respawnBypassEnabled then
+                        task.wait(0.1)
+                        local lp = game.Players.LocalPlayer
+                        if lp:FindFirstChild("Character") then
+                            lp:LoadCharacter() -- immediately reloads character
+                        end
+                    end
+                end)
+            end)
+        end
+    end,
+})
 
 local autoFarmEnabled = false
 
