@@ -36,16 +36,15 @@ end
 local function main()
     print("[Alexchad Loader] Version " .. loaderVersion)
 
-    -- Load universal script first
-    executeScript(universalUrl)
-
-    -- Game-specific script
+    -- Game-specific script FIRST
     local placeId = game.PlaceId
     local scriptUrl = placeScripts[placeId]
     if scriptUrl then
         executeScript(scriptUrl)
     else
-        print("[Alexchad Loader] No specific script for this game. Only universal script loaded.")
+        -- No specific script, fallback to universal
+        print("[Alexchad Loader] No specific script found. Loading universal script...")
+        executeScript(universalUrl)
     end
 end
 
