@@ -119,7 +119,7 @@ local function loadScript(url, scriptName)
 
     local function attemptLoad(attempt)
         local success, result = pcall(function()
-            local scriptContent = game:HttpGetAsync(url, true) -- Async HTTP request
+            local scriptContent = game:HttpGetAsync(url) -- Async HTTP request
             if not scriptContent or scriptContent == "" then
                 error("Empty script content received")
             end
