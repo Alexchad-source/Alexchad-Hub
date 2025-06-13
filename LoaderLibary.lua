@@ -1,147 +1,277 @@
--- Alexchad LoaderLib v1.0
+-- Universal Roblox LoaderLib v1.2
+-- A flexible loader library to handle script loading, versioning, caching, and updating
+
 local LoaderLib = {}
 
--- ============ Configuration Defaults ============
+-- ======================
+-- === CONFIGURATION ===
+-- ======================
 LoaderLib.Config = {
-    FolderName = "Alexchad Hub",  -- Folder where scripts will be saved
-    VersionFileName = "version.txt", -- File to store version info
-    BaseURL = "",                  -- Base URL to fetch scripts (required)
-    FallbackURL = "",              -- URL to universal fallback script (required)
-    PlaceScripts = {},             -- Table mapping PlaceId => Filename
-    LocalVersion = "1.0"           -- Loader version (for auto-update)
+    FolderName = "MyLoaderCache",       -- Folder where scripts and versions are stored locally
+    VersionFileName = "loader.version", -- File that stores the loader's current version string
+    UniversalScriptFile = "universal.lua", -- Filename for the universal bootstrap script
+    UniversalScriptURL = "",              -- URL to download universal script (set by user)
+    BaseURL = "",                        -- Base URL for game-specific scripts (set by user)
+    CurrentVersion = "1.0",              -- Current loader version in number.number format
+    VersionCheckEnabled = true,          -- Whether to check for loader updates from remote
+    MaxVersionLength = 4,                -- Max length of version string (like "2.3")
+    HttpTimeout = 10,                    -- Max timeout for HTTP requests (seconds)
 }
 
--- ============ Executor Support Check ============
-LoaderLib.HasFileSystem = type(isfolder) == "function"
-    and type(makefolder) == "function"
-    and type(writefile) == "function"
-    and type(readfile) == "function"
-    and type(delfile) == "function"
+-- ======================
+-- === INTERNAL STATE ===
+-- ======================
+LoaderLib.Scripts = {}   -- Maps PlaceId => Filename (to be registered via RegisterScripts)
+LoaderLib.HasFileSystem = false
+LoaderLib.HasHttp = false
+LoaderLib.HttpService = game:GetService("HttpService")
+LoaderLib.Players = game:GetService("Players")
 
--- ============ Helper Functions ============
-function LoaderLib:SafeHttpGet(url)
-    local ok, res = pcall(function()
-        return game:HttpGet(url, true)
+-- ======================
+-- === UTILITIES ===
+-- ======================
+
+-- Checks if executor supports filesystem features
+function LoaderLib:CheckFileSystemSupport()
+    self.HasFileSystem = (type(isfolder) == "function" and
+                         type(makefolder) == "function" and
+                         type(writefile) == "function" and
+                         type(readfile) == "function" and
+                         type(delfile) == "function" and
+                         type(listfiles) == "function")
+    return self.HasFileSystem
+end
+
+-- Checks if HTTP requests are supported
+function LoaderLib:CheckHttpSupport()
+    self.HasHttp = pcall(function()
+        return game:HttpGetAsync or game:HttpGet
     end)
-    return ok and res or nil
+    return self.HasHttp
 end
 
-function LoaderLib:EnsureFolder()
-    if self.HasFileSystem and not isfolder(self.Config.FolderName) then
-        makefolder(self.Config.FolderName)
-    end
-end
-
-function LoaderLib:FileExists(path)
-    if self.HasFileSystem then
-        local ok, _ = pcall(readfile, path)
-        return ok
-    end
-    return false
-end
-
-function LoaderLib:ReadFile(path)
-    if self.HasFileSystem then
-        local ok, content = pcall(readfile, path)
-        if ok then return content end
+-- Safe HTTP GET with error handling and timeout
+function LoaderLib:SafeHttpGet(url)
+    if not self.HasHttp then return nil end
+    local ok, res = pcall(function()
+        if game.HttpGetAsync then
+            return game:HttpGetAsync(url, true)
+        elseif game.HttpGet then
+            return game:HttpGet(url, true)
+        else
+            return nil
+        end
+    end)
+    if ok and type(res) == "string" and #res > 0 then
+        return res
     end
     return nil
 end
 
+-- Wait for game fully loaded
+function LoaderLib:WaitForGameLoad()
+    if game:IsLoaded() then return end
+    game.Loaded:Wait()
+end
+
+-- Wait for local player object to exist
+function LoaderLib:WaitForLocalPlayer()
+    if self.Players.LocalPlayer then return self.Players.LocalPlayer end
+    return self.Players.PlayerAdded:Wait()
+end
+
+-- Validate version string format (number.number)
+function LoaderLib:IsValidVersion(ver)
+    if type(ver) ~= "string" then return false end
+    if #ver > self.Config.MaxVersionLength then return false end
+    return ver:match("^%d+%.%d+$") ~= nil
+end
+
+-- Return true if version2 > version1 (numeric comparison)
+function LoaderLib:IsNewerVersion(v1, v2)
+    if not (self:IsValidVersion(v1) and self:IsValidVersion(v2)) then return false end
+    local n1, n2 = tonumber(v1), tonumber(v2)
+    return n2 > n1
+end
+
+-- Ensure folder exists or create it if possible
+function LoaderLib:EnsureFolder()
+    if not self.HasFileSystem then return false end
+    if not isfolder(self.Config.FolderName) then
+        makefolder(self.Config.FolderName)
+    end
+    return true
+end
+
+-- Check if file exists locally
+function LoaderLib:FileExists(path)
+    if not self.HasFileSystem then return false end
+    local ok = pcall(readfile, path)
+    return ok
+end
+
+-- Write content to file safely
 function LoaderLib:WriteFile(path, content)
-    if self.HasFileSystem then
-        writefile(path, content)
-    end
+    if not self.HasFileSystem then return false end
+    local ok, err = pcall(function() writefile(path, content) end)
+    return ok
 end
 
+-- Read file content safely
+function LoaderLib:ReadFile(path)
+    if not self.HasFileSystem then return nil end
+    local ok, content = pcall(readfile, path)
+    if ok then return content end
+    return nil
+end
+
+-- Delete file safely
 function LoaderLib:DeleteFile(path)
-    if self.HasFileSystem and self:FileExists(path) then
-        delfile(path)
+    if not self.HasFileSystem then return false end
+    local ok, err = pcall(function() delfile(path) end)
+    return ok
+end
+
+-- Delete all cached files in folder (including version file)
+function LoaderLib:ClearCache()
+    if not self.HasFileSystem then return end
+    local files = listfiles(self.Config.FolderName)
+    for _, file in pairs(files) do
+        delfile(file)
     end
 end
 
--- ============ Version Handling ============
-function LoaderLib:GetLocalVersion()
-    local path = self.Config.FolderName .. "/" .. self.Config.VersionFileName
-    local content = self:ReadFile(path)
-    return content or "0.0"
-end
+-- Load script from local cache or download and cache
+function LoaderLib:LoadScript(fileName)
+    local localPath = self.Config.FolderName .. "/" .. fileName
+    local scriptContent = nil
 
-function LoaderLib:IsNewerVersion(localVer, remoteVer)
-    local function toNumber(v)
-        local major, minor = string.match(v, "(%d+)%.(%d+)")
-        return tonumber(major) * 1000 + tonumber(minor)
-    end
-    return toNumber(remoteVer) > toNumber(localVer)
-end
-
-function LoaderLib:UpdateAllScripts(remoteVersion)
-    print("[LoaderLib] Updating all cached scripts to version " .. remoteVersion)
-    -- Clear folder
-    for id, filename in pairs(self.Config.PlaceScripts) do
-        self:DeleteFile(self.Config.FolderName .. "/" .. filename)
-    end
-    self:DeleteFile(self.Config.FolderName .. "/" .. self.Config.VersionFileName)
-    self:WriteFile(self.Config.FolderName .. "/" .. self.Config.VersionFileName, remoteVersion)
-end
-
--- ============ Main Loading Logic ============
-function LoaderLib:LoadScript(url, localPath)
-    local content = self:ReadFile(localPath)
-    if not content then
-        content = self:SafeHttpGet(url)
-        if content then
-            self:WriteFile(localPath, content)
+    if self:FileExists(localPath) then
+        scriptContent = self:ReadFile(localPath)
+    else
+        if self.HasHttp and self.Config.BaseURL ~= "" then
+            local url = self.Config.BaseURL .. fileName
+            scriptContent = self:SafeHttpGet(url)
+            if scriptContent and self.HasFileSystem then
+                self:WriteFile(localPath, scriptContent)
+            end
         end
     end
-    return content
+
+    -- fallback: direct HTTP fetch if no FS or file missing
+    if not scriptContent and self.HasHttp and self.Config.BaseURL ~= "" then
+        local url = self.Config.BaseURL .. fileName
+        scriptContent = self:SafeHttpGet(url)
+    end
+
+    return scriptContent
 end
 
-function LoaderLib:RunScript(code)
-    local ok, err = pcall(loadstring(code))
+-- Run lua code safely
+function LoaderLib:RunScript(code, scriptName)
+    if type(code) ~= "string" then return false end
+    local ok, err = pcall(function()
+        loadstring(code)()
+    end)
     if not ok then
-        warn("[LoaderLib] Script execution error: " .. tostring(err))
+        warn("[LoaderLib] Failed to run '" .. tostring(scriptName) .. "': " .. tostring(err))
+        return false
+    end
+    return true
+end
+
+-- Load version string from local version file
+function LoaderLib:ReadLocalVersion()
+    local versionPath = self.Config.FolderName .. "/" .. self.Config.VersionFileName
+    local ver = self:ReadFile(versionPath)
+    if ver and self:IsValidVersion(ver) then
+        return ver
+    end
+    return nil
+end
+
+-- Write current loader version to local version file
+function LoaderLib:WriteLocalVersion()
+    local versionPath = self.Config.FolderName .. "/" .. self.Config.VersionFileName
+    self:WriteFile(versionPath, self.Config.CurrentVersion)
+end
+
+-- Check remote version and update loader if newer
+function LoaderLib:CheckAndUpdateLoader()
+    if not self.Config.VersionCheckEnabled or not self.HasHttp or not self.HasFileSystem then
+        return
+    end
+    if self.Config.BaseURL == "" then
+        warn("[LoaderLib] BaseURL not set, skipping version check")
+        return
+    end
+
+    local remoteVersionURL = self.Config.BaseURL .. self.Config.VersionFileName
+    local remoteVer = self:SafeHttpGet(remoteVersionURL)
+    if remoteVer and self:IsValidVersion(remoteVer) then
+        local localVer = self:ReadLocalVersion()
+        if localVer == nil or self:IsNewerVersion(localVer, remoteVer) then
+            print("[LoaderLib] New loader version detected (" .. remoteVer .. "). Clearing cache and updating...")
+            self:ClearCache()
+            self:WriteFile(self.Config.FolderName .. "/" .. self.Config.VersionFileName, remoteVer)
+            -- Optional: You could trigger an automatic restart or re-download here
+        end
     end
 end
 
+-- Register game-specific scripts (PlaceId => Filename)
+function LoaderLib:RegisterScripts(scriptsTable)
+    for placeId, fileName in pairs(scriptsTable) do
+        self.Scripts[placeId] = fileName
+    end
+end
+
+-- Main execution flow of loader
 function LoaderLib:Run()
+    self:CheckFileSystemSupport()
+    self:CheckHttpSupport()
+
+    self:WaitForGameLoad()
+    self:WaitForLocalPlayer()
+
     self:EnsureFolder()
 
-    -- Check version
-    local localVersion = self:GetLocalVersion()
-    local remoteVersion = self.Config.LocalVersion -- You can make this dynamic from a remote version file if needed
+    self:CheckAndUpdateLoader()
 
-    if self:IsNewerVersion(localVersion, remoteVersion) then
-        self:UpdateAllScripts(remoteVersion)
+    -- Load and run universal script first
+    if self.Config.UniversalScriptURL == "" then
+        warn("[LoaderLib] UniversalScriptURL not set, skipping universal script load.")
     else
-        print("[LoaderLib] Local version is up-to-date.")
-    end
+        local universalPath = self.Config.FolderName .. "/" .. self.Config.UniversalScriptFile
+        local universalScript = nil
 
-    -- Load universal first
-    local universalPath = self.Config.FolderName .. "/universial.lua"
-    local universalScript = self:LoadScript(self.Config.FallbackURL, universalPath)
-    if universalScript then
-        self:RunScript(universalScript)
-    else
-        warn("[LoaderLib] Failed to load universal script.")
-    end
-
-    -- Load place-specific
-    local placeId = game.PlaceId
-    local fileName = self.Config.PlaceScripts[placeId]
-    if fileName then
-        local url = self.Config.BaseURL .. fileName
-        local localPath = self.Config.FolderName .. "/" .. fileName
-        local script = self:LoadScript(url, localPath)
-        if script then
-            self:RunScript(script)
+        if self:FileExists(universalPath) then
+            universalScript = self:ReadFile(universalPath)
         else
-            warn("[LoaderLib] Failed to load place script.")
+            universalScript = self:LoadScript(self.Config.UniversalScriptFile)
+        end
+
+        if universalScript then
+            self:RunScript(universalScript, "Universal Script")
+        else
+            warn("[LoaderLib] Failed to load Universal Script.")
+        end
+    end
+
+    -- Load and run game-specific script if registered for this place
+    local placeId = tostring(game.PlaceId)
+    local gameScriptFile = self.Scripts[placeId]
+    if gameScriptFile then
+        local gameScript = self:LoadScript(gameScriptFile)
+        if gameScript then
+            self:RunScript(gameScript, "Game Script for PlaceId " .. placeId)
+        else
+            warn("[LoaderLib] Failed to load Game Script for PlaceId " .. placeId)
         end
     else
-        print("[LoaderLib] No specific script for this PlaceId.")
+        print("[LoaderLib] No registered game script for PlaceId " .. placeId)
     end
 end
 
+-- Expose the LoaderLib
 return LoaderLib
-print("To see cached scripts go to your file explorer and on view enable showing or idk and then just enter the path of your executers workspace path like ´C:\Users\<YourUsername>\AppData and then idk for swift its Roaming else just look at the executers workspace folder normally like you cna on xeno")
