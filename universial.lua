@@ -2,7 +2,7 @@ local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 local Window = Rayfield:CreateWindow({
    Name = "Alexchad Hub",
-   LoadingTitle = "Loading BS2",
+   LoadingTitle = "Loading Universial",
    LoadingSubtitle = "by Alex",
    ConfigurationSaving = {
       Enabled = false,
