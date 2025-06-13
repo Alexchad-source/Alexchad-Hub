@@ -102,19 +102,22 @@ PlayerTab:CreateToggle({
    end,
 })
 
+local infJumpConn
 PlayerTab:CreateToggle({
    Name = "Infinite Jump",
    CurrentValue = false,
    Callback = function(Value)
       if Value then
-         game:GetService("UserInputService").JumpRequest:Connect(function()
+         infJumpConn = game:GetService("UserInputService").JumpRequest:Connect(function()
             local hum = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
-            if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping)
-                  else end
+            if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
          end)
+      else
+         if infJumpConn then infJumpConn:Disconnect() infJumpConn = nil end
       end
    end,
 })
+
 
 PlayerTab:CreateButton({
    Name = "Reset Character",
