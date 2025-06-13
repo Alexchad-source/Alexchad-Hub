@@ -144,3 +144,4 @@ function LoaderLib:Run()
 end
 
 return LoaderLib
+print("To see cached scripts go to your file explorer and on view enable showing or idk and then just enter the path of your executers workspace path like ´C:\Users\<YourUsername>\AppData and then idk for swift its Roaming else just look at the executers workspace folder normally like you cna on xeno")
