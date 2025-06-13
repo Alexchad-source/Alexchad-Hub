@@ -6,7 +6,8 @@ local placeScripts = {
     [87700573492940] = "UTDG-87700573492940.lua",
     [662417684] = "lucky_block_battlegrounds.lua",
     [2413927524] = "therakerematsered.lua",
-    [482742811] = "Gtecrushedbyaspeedingwall.lua"
+    [482742811] = "Gtecrushedbyaspeedingwall.lua",
+    [101949297449238] = "Build-an-Island.lua"
 }
 
 -- URLs
