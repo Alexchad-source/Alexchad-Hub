@@ -109,7 +109,8 @@ PlayerTab:CreateToggle({
       if Value then
          game:GetService("UserInputService").JumpRequest:Connect(function()
             local hum = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
-            if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+            if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping)
+                  else end
          end)
       end
    end,
