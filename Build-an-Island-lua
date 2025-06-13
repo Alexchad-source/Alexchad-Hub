@@ -1,0 +1,292 @@
+-- Load Rayfield Library
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- Window Creation
+local Window = Rayfield:CreateWindow({
+    Name = "Alexchad Hub | Build An Island",
+    LoadingTitle = "Alexchad Hub Loading",
+    LoadingSubtitle = "Alexchad",
+    ConfigurationSaving = {
+       Enabled = true,
+       FolderName = "AlexchadHubConfigs", -- Where configs will be saved
+       FileName = "BuildAnIsland"
+    },
+    Discord = {
+       Enabled = false
+    },
+    KeySystem = false -- NO KEYSYSTEM, as you requested!
+})
+
+local Players = game:GetService("Players")
+local plr = Players.LocalPlayer
+local plot = game:GetService("Workspace"):WaitForChild("Plots"):WaitForChild(plr.Name)
+local land = plot:FindFirstChild("Land")
+local resources = plot:WaitForChild("Resources")
+local expand = plot:WaitForChild("Expand")
+
+getgenv().settings = {
+    farm = false,
+    expand = false,
+    craft = false,
+    sell = false,
+    gold = false,
+    collect = false,
+    harvest = false,
+    hive = false,
+    auto_buy = false
+}
+
+local expand_delay = 0.1
+local craft_delay = 0.1
+
+-- Main Tab
+local MainTab = Window:CreateTab("Main Features", 4483362458)
+local BuyTab = Window:CreateTab("Buy Items", 4483362458)
+local SettingsTab = Window:CreateTab("Settings", 4483362458)
+
+-- Auto Farm Toggle
+MainTab:CreateToggle({
+    Name = "Auto Farm Resources",
+    CurrentValue = false,
+    Callback = function(b)
+        settings.farm = b
+        task.spawn(function()
+            while settings.farm do
+                for _, r in ipairs(resources:GetChildren()) do
+                    game:GetService("ReplicatedStorage").Communication.HitResource:FireServer(r)
+                    task.wait(0.01)
+                end
+                task.wait(0.1)
+            end
+        end)
+    end
+})
+
+-- Auto Expand Land
+MainTab:CreateToggle({
+    Name = "Auto Expand Land",
+    CurrentValue = false,
+    Callback = function(b)
+        settings.expand = b
+        task.spawn(function()
+            while settings.expand do
+                for _, exp in ipairs(expand:GetChildren()) do
+                    local top = exp:FindFirstChild("Top")
+                    if top then
+                        local bGui = top:FindFirstChild("BillboardGui")
+                        if bGui then
+                            for _, contribute in ipairs(bGui:GetChildren()) do
+                                if contribute:IsA("Frame") and contribute.Name ~= "Example" then
+                                    local args = {exp.Name, contribute.Name, 1}
+                                    game:GetService("ReplicatedStorage").Communication.ContributeToExpand:FireServer(unpack(args))
+                                end
+                            end
+                        end
+                    end
+                    task.wait(0.01)
+                end
+                task.wait(expand_delay)
+            end
+        end)
+    end
+})
+
+-- Auto Crafter
+MainTab:CreateToggle({
+    Name = "Auto Crafter",
+    CurrentValue = false,
+    Callback = function(b)
+        settings.craft = b
+        task.spawn(function()
+            while settings.craft do
+                for _, c in pairs(plot:GetDescendants()) do
+                    if c.Name == "Crafter" then
+                        local attachment = c:FindFirstChildOfClass("Attachment")
+                        if attachment then
+                            game:GetService("ReplicatedStorage").Communication.Craft:FireServer(attachment)
+                        end
+                    end
+                end
+                task.wait(craft_delay)
+            end
+        end)
+    end
+})
+
+-- Auto Gold Mine
+MainTab:CreateToggle({
+    Name = "Auto Gold Mine",
+    CurrentValue = false,
+    Callback = function(b)
+        settings.gold = b
+        task.spawn(function()
+            while settings.gold do
+                for _, mine in pairs(land:GetDescendants()) do
+                    if mine:IsA("Model") and mine.Name == "GoldMineModel" then
+                        game:GetService("ReplicatedStorage").Communication.Goldmine:FireServer(mine.Parent.Name, 1)
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    end
+})
+
+-- Auto Collect Gold
+MainTab:CreateToggle({
+    Name = "Auto Collect Gold",
+    CurrentValue = false,
+    Callback = function(b)
+        settings.collect = b
+        task.spawn(function()
+            while settings.collect do
+                for _, mine in pairs(land:GetDescendants()) do
+                    if mine:IsA("Model") and mine.Name == "GoldMineModel" then
+                        game:GetService("ReplicatedStorage").Communication.Goldmine:FireServer(mine.Parent.Name, 2)
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    end
+})
+
+-- Auto Sell
+MainTab:CreateToggle({
+    Name = "Auto Sell",
+    CurrentValue = false,
+    Callback = function(b)
+        settings.sell = b
+        task.spawn(function()
+            while settings.sell do
+                for _, crop in pairs(plr.Backpack:GetChildren()) do
+                    if crop:GetAttribute("Sellable") then
+                        local a = {false, {crop:GetAttribute("Hash")}}
+                        game:GetService("ReplicatedStorage").Communication.SellToMerchant:FireServer(unpack(a))
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    end
+})
+
+-- Auto Harvest
+MainTab:CreateToggle({
+    Name = "Auto Harvest",
+    CurrentValue = false,
+    Callback = function(b)
+        settings.harvest = b
+        task.spawn(function()
+            while settings.harvest do
+                for _, crop in pairs(plot:FindFirstChild("Plants"):GetChildren()) do
+                    game:GetService("ReplicatedStorage").Communication.Harvest:FireServer(crop.Name)
+                end
+                task.wait(1)
+            end
+        end)
+    end
+})
+
+-- Auto Hive
+MainTab:CreateToggle({
+    Name = "Auto Collect Hive",
+    CurrentValue = false,
+    Callback = function(b)
+        settings.hive = b
+        task.spawn(function()
+            while settings.hive do
+                for _, spot in ipairs(land:GetDescendants()) do
+                    if spot:IsA("Model") and spot.Name:match("Spot") then
+                        game:GetService("ReplicatedStorage").Communication.Hive:FireServer(spot.Parent.Name, spot.Name, 2)
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    end
+})
+
+-- Auto Buy
+local item = nil
+local items = {}
+for _, i in ipairs(plr.PlayerGui.Main.Menus.Merchant.Inner.ScrollingFrame.Hold:GetChildren()) do
+    if i:IsA("Frame") and i.Name ~= "Example" then
+        table.insert(items, i.Name)
+    end
+end
+
+BuyTab:CreateDropdown({
+    Name = "Select Item to Buy",
+    Options = items,
+    CurrentOption = "",
+    Callback = function(Value)
+        item = Value
+    end,
+})
+
+BuyTab:CreateButton({
+    Name = "Buy Selected Item",
+    Callback = function()
+        if item then
+            local a = {item, false}
+            game:GetService("ReplicatedStorage").Communication.BuyFromMerchant:FireServer(unpack(a))
+        end
+    end,
+})
+
+BuyTab:CreateToggle({
+    Name = "Auto Buy Selected Item",
+    CurrentValue = false,
+    Callback = function(b)
+        settings.auto_buy = b
+        task.spawn(function()
+            while settings.auto_buy do
+                if item then
+                    local a = {item, false}
+                    game:GetService("ReplicatedStorage").Communication.BuyFromMerchant:FireServer(unpack(a))
+                end
+                task.wait(0.25)
+            end
+        end)
+    end,
+})
+
+-- Settings
+SettingsTab:CreateSlider({
+    Name = "Expand Delay",
+    Range = {0.01, 5},
+    Increment = 0.01,
+    CurrentValue = expand_delay,
+    Callback = function(Value)
+        expand_delay = Value
+    end,
+})
+
+SettingsTab:CreateSlider({
+    Name = "Craft Delay",
+    Range = {0.01, 5},
+    Increment = 0.01,
+    CurrentValue = craft_delay,
+    Callback = function(Value)
+        craft_delay = Value
+    end,
+})
+
+SettingsTab:CreateButton({
+    Name = "Anti-AFK",
+    Callback = function()
+        local vu = game:GetService("VirtualUser")
+        plr.Idled:Connect(function()
+            vu:CaptureController()
+            vu:ClickButton2(Vector2.new())
+        end)
+    end,
+})
+
+SettingsTab:CreateButton({
+    Name = "Destroy GUI",
+    Callback = function()
+        for k in pairs(settings) do settings[k] = false end
+        Rayfield:Destroy()
+    end,
+})
