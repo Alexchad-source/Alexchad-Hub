@@ -14,7 +14,7 @@ local baseUrl = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/
 local universalFile = "universial.lua"
 local universalUrl = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/refs/heads/main/" .. universalFile
 
-local folderName = "Alexchad Hub"
+local folderName = "AlexchadHub"
 local versionFile = folderName .. "/loader_version.txt"
 
 -- Executor filesystem support check
