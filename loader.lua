@@ -5,7 +5,7 @@ local placeScripts = {
     [662417684] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/lucky_block_battlegrounds.lua",
     [2413927524] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/therakerematsered.lua",
     [482742811] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/Gtecrushedbyaspeedingwall.lua",
-    [101949297449238] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/Build-an-Island.lua"
+    [101949297449238] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/Build-an-Island-lua"
 }
 
 local universalUrl = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/refs/heads/main/universial.lua"
