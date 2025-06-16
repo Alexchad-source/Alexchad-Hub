@@ -1,11 +1,16 @@
 local loaderVersion = "1.0"
 
+wait() until game.IsLoaded()
+
 local placeScripts = {
     [87700573492940] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/UTDG-87700573492940.lua",
     [662417684] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/lucky_block_battlegrounds.lua",
     [2413927524] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/therakerematsered.lua",
     [482742811] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/Gtecrushedbyaspeedingwall.lua",
-    [101949297449238] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/Build-an-Island-lua"
+    [101949297449238] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/Build-an-Island-lua",
+    [10905034443] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/SmoothieFactoryTycoon.lua"
+    --[] = ""--
+    --[] = ""--
 }
 
 local universalUrl = "https://raw.githubusercontent.com/Alexchad-source/Chatgpt-Hub/refs/heads/main/universial.lua"
