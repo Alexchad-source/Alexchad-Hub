@@ -9,7 +9,7 @@ local placeScripts = {
     [482742811] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/Gtecrushedbyaspeedingwall.lua",
     [101949297449238] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/Build-an-Island-lua",
     [10905034443] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/SmoothieFactoryTycoon.lua"
-    --[] = ""--
+    [3823781113] = "https://raw.githubusercontent.com/Alexchad-source/Alexchad-Hub/refs/heads/main/Sabersimulator.lua"
     --[] = ""--
 }
 
