@@ -180,7 +180,7 @@ PlayerTab:CreateButton({
 -- MISC TAB
 local MiscTab = Window:CreateTab("Misc", 4483363063)
 
-MainTab:CreateButton({
+MiscTab:CreateButton({
     Name = "Teleport to all slaps (may not work and only for those games in some games you also have to press e) ",
     Callback = function()
         TeleportToAllParts()
