@@ -1,4 +1,52 @@
+local function FindSlapFolders(parent)
+    local folders = {}
+    for _, child in pairs(parent:GetChildren()) do
+        if child:IsA("Folder") and (child.Name == "Slap" or child.Name == "Slaps") then
+            table.insert(folders, child)
+        elseif #child:GetChildren() > 0 then
+            -- recurse deeper
+            local subFolders = FindSlapFolders(child)
+            for _, sub in pairs(subFolders) do
+                table.insert(folders, sub)
+            end
+        end
+    end
+    return folders
+end
+
+-- Teleport function
+local function TeleportToAllParts()
+    local folders = FindSlapFolders(Workspace)
+    if #folders == 0 then
+        
+        return
+    end
+
+    for _, folder in pairs(folders) do
+        for _, item in pairs(folder:GetChildren()) do
+            if item:IsA("Model") and item.PrimaryPart then
+                Character:PivotTo(item.PrimaryPart.CFrame)
+                task.wait(0.5)
+            elseif item:IsA("BasePart") then
+                Character:PivotTo(item.CFrame)
+                task.wait(0.5)
+            end
+        end
+    end
+
+    
+end
+
+
+
+
+
+
+
+
+
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
 
 local Window = Rayfield:CreateWindow({
    Name = "Alexchad Hub",
@@ -131,6 +179,13 @@ PlayerTab:CreateButton({
 
 -- MISC TAB
 local MiscTab = Window:CreateTab("Misc", 4483363063)
+
+MainTab:CreateButton({
+    Name = "Teleport to all slaps (may not work and only for those games in some games you also have to press e) ",
+    Callback = function()
+        TeleportToAllParts()
+    end
+})
 
 MiscTab:CreateButton({
    Name = "Full Bright",
