@@ -909,20 +909,35 @@ function Tab:CreateTextbox(config)
 
 	return {Frame = textboxFrame, Textbox = textbox}
 end
+--//Notification System
+local Notifications = {}
+local Queue = {}
+local MaxNotifications = 7
+local Processing = false
 
--- Notification System
-function Library:Notify(config)
-	config = config or {}
-	local title = config.Title or "Notification"
-	local content = config.Content or ""
-	local duration = config.Duration or 5
+local function Restack()
+	local screenPadding = 20
+	local spacing = 10
+	local currentY = screenPadding
 
+	for _, notif in ipairs(Notifications) do
+		local targetOffset = -(currentY + notif.AbsoluteSize.Y)
+		CreateTween(notif, {
+			Position = UDim2.new(1, -10, 1, targetOffset)
+		}, 0.25, Enum.EasingStyle.Quint)
+		currentY += notif.AbsoluteSize.Y + spacing
+	end
+end
+
+local function ShowNotification(config)
 	local notification = Instance.new("Frame")
 	notification.Name = "Notification"
 	notification.BackgroundColor3 = DefaultTheme.SecondaryBackground
 	notification.BorderSizePixel = 0
-	notification.Position = UDim2.new(1, 0, 1, -10)
 	notification.Size = UDim2.new(0, 300, 0, 80)
+	notification.AnchorPoint = Vector2.new(1, 1)
+	notification.ClipsDescendants = true
+	notification.Position = UDim2.new(1, 310, 1, -80) -- offscreen right initially
 	notification.Parent = ScreenGui
 
 	local notifCorner = Instance.new("UICorner")
@@ -942,7 +957,7 @@ function Library:Notify(config)
 	titleLabel.Position = UDim2.new(0, 15, 0, 10)
 	titleLabel.Size = UDim2.new(1, -30, 0, 20)
 	titleLabel.Font = Enum.Font.GothamBold
-	titleLabel.Text = title
+	titleLabel.Text = config.Title or "Notification"
 	titleLabel.TextColor3 = DefaultTheme.Text
 	titleLabel.TextSize = 16
 	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -953,22 +968,62 @@ function Library:Notify(config)
 	contentLabel.Position = UDim2.new(0, 15, 0, 35)
 	contentLabel.Size = UDim2.new(1, -30, 0, 30)
 	contentLabel.Font = Enum.Font.Gotham
-	contentLabel.Text = content
+	contentLabel.Text = config.Content or ""
 	contentLabel.TextColor3 = DefaultTheme.SecondaryText
 	contentLabel.TextSize = 14
 	contentLabel.TextWrapped = true
 	contentLabel.TextXAlignment = Enum.TextXAlignment.Left
 	contentLabel.Parent = notification
 
-	-- Animate in
-	notification.Position = UDim2.new(1, 0, 1, -10)
-	CreateTween(notification, {Position = UDim2.new(1, -310, 1, -90)}, 0.3, Enum.EasingStyle.Back)
+	table.insert(Notifications, 1, notification)
+	Restack()
 
-	-- Auto remove
-	task.wait(duration)
-	CreateTween(notification, {Position = UDim2.new(1, 0, 1, -90)}, 0.3).Completed:Connect(function()
-		notification:Destroy()
-	end)
+	-- Animate in
+	local tweenIn = CreateTween(notification, {
+		Position = UDim2.new(1, -10, 1, -80)
+	}, 0.35, Enum.EasingStyle.Back)
+	tweenIn.Completed:Wait()
+
+	Restack()
+
+	task.wait(config.Duration or 5)
+
+	-- Animate out
+	local tweenOut = CreateTween(notification, {
+		Position = UDim2.new(1, 310, notification.Position.Y.Scale, notification.Position.Y.Offset)
+	}, 0.3, Enum.EasingStyle.Quart)
+	tweenOut.Completed:Wait()
+
+	local index = table.find(Notifications, notification)
+	if index then
+		table.remove(Notifications, index)
+	end
+	notification:Destroy()
+
+	Restack()
+end
+
+local function ProcessQueue()
+	if Processing then return end
+	Processing = true
+
+	while #Queue > 0 do
+		if #Notifications < MaxNotifications then
+			local config = table.remove(Queue, 1)
+			task.spawn(function()
+				ShowNotification(config)
+			end)
+		else
+			task.wait(0.1)
+		end
+	end
+
+	Processing = false
+end
+
+function Library:Notify(config)
+	table.insert(Queue, config)
+	task.spawn(ProcessQueue)
 end
 
 -- Configuration System
