@@ -190,7 +190,7 @@ function Library:CreateWindow(config)
 	self.TabContainer.Parent = self.MainFrame
 
 	local tabCorner = Instance.new("UICorner")
-	tabCorner.CornerRadius = UDim.new(0, 6)
+	tabCorner.CornerRadius = UDim.new(0, 4)
 	tabCorner.Parent = self.TabContainer
 
 	local tabGradient = Instance.new("UIGradient")
@@ -224,6 +224,10 @@ function Library:CreateWindow(config)
 	self.ContentContainer.Size = UDim2.new(1, -180, 1, -40)
 	self.ContentContainer.Parent = self.MainFrame
 
+	local ContentContainerCorner = Instance.new("UICorner")
+	closeCorner.CornerRadius = UDim.new(0, 4)
+	closeCorner.Parent = self.ContentContainer
+	
 	-- Draggable TitleBar
 	local dragging, dragStart, startPos = false
 
