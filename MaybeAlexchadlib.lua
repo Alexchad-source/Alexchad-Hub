@@ -235,6 +235,13 @@ function Library:CreateWindow(config)
 	local ContentContainerCorner = Instance.new("UICorner")
 	closeCorner.CornerRadius = UDim.new(0, 4)
 	closeCorner.Parent = self.ContentContainer
+
+	Round(self.MainFrame)
+	Round(self.TitleBar)
+	Round(self.TabContainer)
+	Round(self.CloseButton, UDim.new(0, 6))
+	Round(self.ContentContainer)
+
 	
 	-- Draggable TitleBar
 	local dragging, dragStart, startPos = false
