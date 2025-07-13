@@ -190,7 +190,7 @@ function Library:CreateWindow(config)
 	self.TabContainer.BackgroundColor3 = self.Theme.SecondaryBackground
 	self.TabContainer.BorderSizePixel = 0
 	self.TabContainer.Position = UDim2.new(0, 0, 0, 40)
-	self.TabContainer.Size = UDim2.new(0, 150, 1, -40)
+	self.TabContainer.Size = UDim2.new(0, 170, 1, -40)
 	self.TabContainer.Parent = self.MainFrame
 
 	local tabCorner = Instance.new("UICorner")
