@@ -96,6 +96,14 @@ local function CreateShadow(parent, transparency)
 	return shadow
 end
 
+local function Round(instance, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = radius or UDim.new(0, 8)
+	corner.Parent = instance
+	return corner
+end
+
+
 -- Window Class
 local Window = {}
 Window.__index = Window
