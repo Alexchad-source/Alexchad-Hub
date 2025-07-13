@@ -113,18 +113,17 @@ function Library:CreateWindow(config)
 	self.Tabs = {}
 	self.Flags = {}
 
-	-- Main Frame
+	-- Main Frame (bigger, centered)
 	self.MainFrame = Instance.new("Frame")
 	self.MainFrame.Name = "MainFrame"
 	self.MainFrame.BackgroundColor3 = self.Theme.Background
 	self.MainFrame.BorderSizePixel = 0
-	self.MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
-	self.MainFrame.Size = UDim2.new(0, 600, 0, 400)
+	self.MainFrame.Position = UDim2.new(0.5, -330, 0.5, -230) -- Centered for 660x460
+	self.MainFrame.Size = UDim2.new(0, 660, 0, 460) -- Increased size
 	self.MainFrame.Parent = ScreenGui
 
-	-- Fully round
 	local mainCorner = Instance.new("UICorner")
-	mainCorner.CornerRadius = UDim.new(1, 0)
+	mainCorner.CornerRadius = UDim.new(0, 10) -- Slightly rounder
 	mainCorner.Parent = self.MainFrame
 
 	CreateShadow(self.MainFrame)
@@ -136,10 +135,6 @@ function Library:CreateWindow(config)
 	self.TitleBar.BorderSizePixel = 0
 	self.TitleBar.Size = UDim2.new(1, 0, 0, 40)
 	self.TitleBar.Parent = self.MainFrame
-
-	local titleCorner = Instance.new("UICorner")
-	titleCorner.CornerRadius = UDim.new(1, 0)
-	titleCorner.Parent = self.TitleBar
 
 	local titleGradient = Instance.new("UIGradient")
 	titleGradient.Color = ColorSequence.new{
@@ -157,6 +152,7 @@ function Library:CreateWindow(config)
 	self.TitleLabel.Font = Enum.Font.Gotham
 	self.TitleLabel.Text = self.Name
 	self.TitleLabel.TextColor3 = self.Theme.Text
+	self.TitleLabel.TextScaled = false
 	self.TitleLabel.TextSize = 16
 	self.TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	self.TitleLabel.Parent = self.TitleBar
@@ -175,7 +171,7 @@ function Library:CreateWindow(config)
 	self.CloseButton.Parent = self.TitleBar
 
 	local closeCorner = Instance.new("UICorner")
-	closeCorner.CornerRadius = UDim.new(1, 0)
+	closeCorner.CornerRadius = UDim.new(0, 4)
 	closeCorner.Parent = self.CloseButton
 
 	AddHoverEffect(self.CloseButton, Color3.fromRGB(255, 80, 80), Color3.fromRGB(255, 60, 60))
@@ -184,17 +180,17 @@ function Library:CreateWindow(config)
 		self:Destroy()
 	end)
 
-	-- Tab Container
+	-- Tab Container (wider)
 	self.TabContainer = Instance.new("Frame")
 	self.TabContainer.Name = "TabContainer"
 	self.TabContainer.BackgroundColor3 = self.Theme.SecondaryBackground
 	self.TabContainer.BorderSizePixel = 0
 	self.TabContainer.Position = UDim2.new(0, 0, 0, 40)
-	self.TabContainer.Size = UDim2.new(0, 170, 1, -40)
+	self.TabContainer.Size = UDim2.new(0, 180, 1, -40) -- Wider by 30px
 	self.TabContainer.Parent = self.MainFrame
 
 	local tabCorner = Instance.new("UICorner")
-	tabCorner.CornerRadius = UDim.new(1, 0)
+	tabCorner.CornerRadius = UDim.new(0, 6)
 	tabCorner.Parent = self.TabContainer
 
 	local tabGradient = Instance.new("UIGradient")
@@ -215,31 +211,21 @@ function Library:CreateWindow(config)
 	self.TabList.ScrollBarImageColor3 = self.Theme.Accent
 	self.TabList.Parent = self.TabContainer
 
-	local listCorner = Instance.new("UICorner")
-	listCorner.CornerRadius = UDim.new(1, 0)
-	listCorner.Parent = self.TabList
-
 	local tabListLayout = Instance.new("UIListLayout")
 	tabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	tabListLayout.Padding = UDim.new(0, 5)
 	tabListLayout.Parent = self.TabList
 
-	-- Content Container
+	-- Content Container (shifted to match new TabContainer width)
 	self.ContentContainer = Instance.new("Frame")
 	self.ContentContainer.Name = "ContentContainer"
 	self.ContentContainer.BackgroundTransparency = 1
-	self.ContentContainer.Position = UDim2.new(0, 150, 0, 40)
-	self.ContentContainer.Size = UDim2.new(1, -150, 1, -40)
+	self.ContentContainer.Position = UDim2.new(0, 180, 0, 40)
+	self.ContentContainer.Size = UDim2.new(1, -180, 1, -40)
 	self.ContentContainer.Parent = self.MainFrame
 
-	local contentCorner = Instance.new("UICorner")
-	contentCorner.CornerRadius = UDim.new(1, 0)
-	contentCorner.Parent = self.ContentContainer
-
-	-- Make window draggable
-	local dragging = false
-	local dragStart = nil
-	local startPos = nil
+	-- Draggable TitleBar
+	local dragging, dragStart, startPos = false
 
 	self.TitleBar.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -267,14 +253,14 @@ function Library:CreateWindow(config)
 		end
 	end)
 
-	-- Toggle visibility with keybind
+	-- Close/Open Keybind
 	UserInputService.InputBegan:Connect(function(input)
 		if input.KeyCode == self.CloseBind then
 			self.MainFrame.Visible = not self.MainFrame.Visible
 		end
 	end)
 
-	-- Load config if enabled
+	-- Load saved config
 	if self.LoadConfig and self.ConfigFolder then
 		self:LoadConfiguration()
 	end
