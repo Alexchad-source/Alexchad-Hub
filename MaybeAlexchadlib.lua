@@ -189,6 +189,10 @@ function Library:CreateWindow(config)
 	self.TabContainer.Size = UDim2.new(0, 150, 1, -40)
 	self.TabContainer.Parent = self.MainFrame
 
+	local TabContainerCorner = Instance.new("UICorner")
+	closeCorner.CornerRadius = UDim.new(0, 4)
+	closeCorner.Parent = self.TabContainer
+
 	local tabGradient = Instance.new("UIGradient")
 	tabGradient.Color = ColorSequence.new{
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
@@ -206,6 +210,7 @@ function Library:CreateWindow(config)
 	self.TabList.ScrollBarThickness = 3
 	self.TabList.ScrollBarImageColor3 = self.Theme.Accent
 	self.TabList.Parent = self.TabContainer
+	
 
 	local tabListLayout = Instance.new("UIListLayout")
 	tabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
