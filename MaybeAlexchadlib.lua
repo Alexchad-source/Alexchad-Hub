@@ -122,8 +122,9 @@ function Library:CreateWindow(config)
 	self.MainFrame.Size = UDim2.new(0, 600, 0, 400)
 	self.MainFrame.Parent = ScreenGui
 
+	-- Fully round
 	local mainCorner = Instance.new("UICorner")
-	mainCorner.CornerRadius = UDim.new(0, 8)
+	mainCorner.CornerRadius = UDim.new(1, 0)
 	mainCorner.Parent = self.MainFrame
 
 	CreateShadow(self.MainFrame)
@@ -135,6 +136,10 @@ function Library:CreateWindow(config)
 	self.TitleBar.BorderSizePixel = 0
 	self.TitleBar.Size = UDim2.new(1, 0, 0, 40)
 	self.TitleBar.Parent = self.MainFrame
+
+	local titleCorner = Instance.new("UICorner")
+	titleCorner.CornerRadius = UDim.new(1, 0)
+	titleCorner.Parent = self.TitleBar
 
 	local titleGradient = Instance.new("UIGradient")
 	titleGradient.Color = ColorSequence.new{
@@ -152,7 +157,6 @@ function Library:CreateWindow(config)
 	self.TitleLabel.Font = Enum.Font.Gotham
 	self.TitleLabel.Text = self.Name
 	self.TitleLabel.TextColor3 = self.Theme.Text
-	self.TitleLabel.TextScaled = false
 	self.TitleLabel.TextSize = 16
 	self.TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	self.TitleLabel.Parent = self.TitleBar
@@ -171,7 +175,7 @@ function Library:CreateWindow(config)
 	self.CloseButton.Parent = self.TitleBar
 
 	local closeCorner = Instance.new("UICorner")
-	closeCorner.CornerRadius = UDim.new(0, 4)
+	closeCorner.CornerRadius = UDim.new(1, 0)
 	closeCorner.Parent = self.CloseButton
 
 	AddHoverEffect(self.CloseButton, Color3.fromRGB(255, 80, 80), Color3.fromRGB(255, 60, 60))
@@ -189,9 +193,9 @@ function Library:CreateWindow(config)
 	self.TabContainer.Size = UDim2.new(0, 150, 1, -40)
 	self.TabContainer.Parent = self.MainFrame
 
-	local TabContainerCorner = Instance.new("UICorner")
-	closeCorner.CornerRadius = UDim.new(0, 4)
-	closeCorner.Parent = self.TabContainer
+	local tabCorner = Instance.new("UICorner")
+	tabCorner.CornerRadius = UDim.new(1, 0)
+	tabCorner.Parent = self.TabContainer
 
 	local tabGradient = Instance.new("UIGradient")
 	tabGradient.Color = ColorSequence.new{
@@ -210,7 +214,10 @@ function Library:CreateWindow(config)
 	self.TabList.ScrollBarThickness = 3
 	self.TabList.ScrollBarImageColor3 = self.Theme.Accent
 	self.TabList.Parent = self.TabContainer
-	
+
+	local listCorner = Instance.new("UICorner")
+	listCorner.CornerRadius = UDim.new(1, 0)
+	listCorner.Parent = self.TabList
 
 	local tabListLayout = Instance.new("UIListLayout")
 	tabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -224,6 +231,10 @@ function Library:CreateWindow(config)
 	self.ContentContainer.Position = UDim2.new(0, 150, 0, 40)
 	self.ContentContainer.Size = UDim2.new(1, -150, 1, -40)
 	self.ContentContainer.Parent = self.MainFrame
+
+	local contentCorner = Instance.new("UICorner")
+	contentCorner.CornerRadius = UDim.new(1, 0)
+	contentCorner.Parent = self.ContentContainer
 
 	-- Make window draggable
 	local dragging = false
@@ -270,6 +281,7 @@ function Library:CreateWindow(config)
 
 	return self
 end
+
 
 -- Tab Class
 local Tab = {}
