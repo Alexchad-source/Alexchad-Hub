@@ -28,7 +28,7 @@ else
 	ScreenGui.Parent = CoreGui
 end
 
--- Default Theme
+--// [SUGGESTED] Improved Default Theme
 local DefaultTheme = {
 	Background = Color3.fromRGB(25, 25, 25),
 	SecondaryBackground = Color3.fromRGB(32, 32, 32),
@@ -38,8 +38,10 @@ local DefaultTheme = {
 	Text = Color3.fromRGB(240, 240, 240),
 	SecondaryText = Color3.fromRGB(180, 180, 180),
 	Border = Color3.fromRGB(50, 50, 50),
-	Shadow = Color3.fromRGB(15, 15, 15)
+	Shadow = Color3.fromRGB(15, 15, 15),
+	Destructive = Color3.fromRGB(231, 76, 60) 
 }
+
 
 -- Utility Functions
 local function CreateTween(instance, properties, duration, easingStyle)
