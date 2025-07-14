@@ -15,6 +15,10 @@ local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
 local UI_NAME = "Alexchad_BroFinally"
 
+if Players.LocalPlayer.PlayerGui:WaitForChild("Alexchad_BroFinally") then
+    Players.LocalPlayer.PlayerGui.Alexchad_BroFinally:Destroy()
+end
+
 local AlexchadGui = Instance.new("ScreenGui")
 AlexchadGui.Name = UI_NAME
 AlexchadGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
