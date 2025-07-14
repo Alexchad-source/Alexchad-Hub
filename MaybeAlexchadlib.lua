@@ -105,8 +105,10 @@ local function Round(instance, radius)
 	return corner
 end
 
+--[[ =================================== ]]
+--[[           Window Class              ]]
+--[[ =================================== ]]
 
--- Window Class
 local Window = {}
 Window.__index = Window
 
@@ -120,175 +122,158 @@ function Library:CreateWindow(config)
 	self.LoadConfig = config.LoadConfig or false
 	self.ConfigFolder = config.ConfigFolder or "KavoUIConfigs"
 	self.CloseBind = config.CloseBind or Enum.KeyCode.RightControl
+
 	self.Tabs = {}
 	self.Flags = {}
+	self.Connections = {}
 
-	-- Main Frame (bigger, centered)
-	self.MainFrame = Instance.new("Frame")
-	self.MainFrame.Name = "MainFrame"
-	self.MainFrame.BackgroundColor3 = self.Theme.Background
-	self.MainFrame.BorderSizePixel = 0
-	self.MainFrame.Position = UDim2.new(0.5, -330, 0.5, -230) -- Centered for 660x460
-	self.MainFrame.Size = UDim2.new(0, 660, 0, 460) -- Increased size
-	self.MainFrame.Parent = ScreenGui
+	-- Main Frame (No changes here, it's solid)
+	self.MainFrame = Create("Frame", {
+		Name = "MainFrame",
+		BackgroundColor3 = self.Theme.Background,
+		BorderSizePixel = 0,
+		Position = UDim2.new(0.5, -330, 0.5, -230),
+		Size = UDim2.new(0, 660, 0, 460),
+		ClipsDescendants = true, -- ClipsDescendants is better for the main frame
+		Parent = AlexchadGui
+	})
 
-	local mainCorner = Instance.new("UICorner")
-	mainCorner.CornerRadius = UDim.new(0, 10) -- Slightly rounder
-	mainCorner.Parent = self.MainFrame
-
+	Round(self.MainFrame, UDim.new(0, 10))
 	CreateShadow(self.MainFrame)
 
 	-- Title Bar
-	self.TitleBar = Instance.new("Frame")
-	self.TitleBar.Name = "TitleBar"
-	self.TitleBar.BackgroundColor3 = self.Theme.SecondaryBackground
-	self.TitleBar.BorderSizePixel = 0
-	self.TitleBar.Size = UDim2.new(1, 0, 0, 40)
-	self.TitleBar.Parent = self.MainFrame
+	self.TitleBar = Create("Frame", {
+		Name = "TitleBar",
+		BackgroundColor3 = self.Theme.SecondaryBackground,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, 44), -- [IMPROVEMENT] Increased height slightly for better spacing
+		Parent = self.MainFrame
+	})
+    -- [IMPROVEMENT] We only want to round the top corners.
+	Round(self.TitleBar, UDim.new(0,10))
 
-	local titleGradient = Instance.new("UIGradient")
-	titleGradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
-	}
-	titleGradient.Rotation = 90
-	titleGradient.Parent = self.TitleBar
+	--- [IMPROVEMENT] A subtle border on the bottom of the title bar creates clean separation.
+	Create("UIStroke", {
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Color = self.Theme.Border,
+		Thickness = 1,
+		Parent = self.TitleBar
+	})
 
-	self.TitleLabel = Instance.new("TextLabel")
-	self.TitleLabel.Name = "Title"
-	self.TitleLabel.BackgroundTransparency = 1
-	self.TitleLabel.Position = UDim2.new(0, 15, 0, 0)
-	self.TitleLabel.Size = UDim2.new(0.5, -15, 1, 0)
-	self.TitleLabel.Font = Enum.Font.Gotham
-	self.TitleLabel.Text = self.Name
-	self.TitleLabel.TextColor3 = self.Theme.Text
-	self.TitleLabel.TextScaled = false
-	self.TitleLabel.TextSize = 16
-	self.TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-	self.TitleLabel.Parent = self.TitleBar
+	--- [IMPROVEMENT] Removed the bright UIGradient. A flat, clean look is more modern and consistent with a dark theme.
+	-- Create("UIGradient", { ... }) -- This was removed.
+
+	self.TitleLabel = Create("TextLabel", {
+		Name = "Title",
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0, 15, 0, 0),
+		Size = UDim2.new(0.5, -15, 1, 0),
+		Font = Enum.Font.GothamSemibold, -- [IMPROVEMENT] Semibold gives the title more presence
+		Text = self.Name,
+		TextColor3 = self.Theme.Text,
+		TextSize = 16,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = self.TitleBar
+	})
 
 	-- Close Button
-	self.CloseButton = Instance.new("TextButton")
-	self.CloseButton.Name = "CloseButton"
-	self.CloseButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
-	self.CloseButton.BorderSizePixel = 0
-	self.CloseButton.Position = UDim2.new(1, -35, 0.5, -10)
-	self.CloseButton.Size = UDim2.new(0, 20, 0, 20)
-	self.CloseButton.Font = Enum.Font.Gotham
-	self.CloseButton.Text = "×"
-	self.CloseButton.TextColor3 = Color3.new(1, 1, 1)
-	self.CloseButton.TextSize = 18
-	self.CloseButton.Parent = self.TitleBar
+	self.CloseButton = Create("TextButton", {
+		Name = "CloseButton",
+		-- [IMPROVEMENT] Default state is subtle, matching the bar. Color appears on hover.
+		BackgroundColor3 = self.Theme.SecondaryBackground, 
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -15, 0.5, 0),
+		Size = UDim2.new(0, 24, 0, 24), -- [IMPROVEMENT] A square size for a circular button
+		Font = Enum.Font.SourceSansBold, -- [IMPROVEMENT] A font that renders a clean 'X'
+		Text = "X",
+		TextColor3 = self.Theme.SecondaryText, -- [IMPROVEMENT] Subtle text color by default
+		TextSize = 16,
+		Parent = self.TitleBar
+	})
 
-	local closeCorner = Instance.new("UICorner")
-	closeCorner.CornerRadius = UDim.new(0, 4)
-	closeCorner.Parent = self.CloseButton
-
-	AddHoverEffect(self.CloseButton, Color3.fromRGB(255, 80, 80), Color3.fromRGB(255, 60, 60))
+	-- [IMPROVEMENT] A fully rounded corner makes the button a circle, a very clean modern look.
+	Round(self.CloseButton, UDim.new(0.5, 0)) 
+	-- [IMPROVEMENT] Use a custom hover effect for the close button instead of the generic one.
+	self.CloseButton.MouseEnter:Connect(function()
+		CreateTween(self.CloseButton, {BackgroundColor3 = self.Theme.Destructive, TextColor3 = self.Theme.Text}, 0.2)
+	end)
+	self.CloseButton.MouseLeave:Connect(function()
+		CreateTween(self.CloseButton, {BackgroundColor3 = self.Theme.SecondaryBackground, TextColor3 = self.Theme.SecondaryText}, 0.2)
+	end)
 
 	self.CloseButton.MouseButton1Click:Connect(function()
 		self:Destroy()
 	end)
 
-	-- Tab Container (wider)
-	self.TabContainer = Instance.new("Frame")
-	self.TabContainer.Name = "TabContainer"
-	self.TabContainer.BackgroundColor3 = self.Theme.SecondaryBackground
-	self.TabContainer.BorderSizePixel = 0
-	self.TabContainer.Position = UDim2.new(0, 0, 0, 40)
-	self.TabContainer.Size = UDim2.new(0, 180, 1, -40) -- Wider by 30px
-	self.TabContainer.Parent = self.MainFrame
+	-- Tab Container
+	self.TabContainer = Create("Frame", {
+		Name = "TabContainer",
+		BackgroundColor3 = self.Theme.SecondaryBackground,
+		BorderSizePixel = 0,
+		Position = UDim2.new(0, 0, 0, 44), -- [IMPROVEMENT] Positioned below the new TitleBar height
+		Size = UDim2.new(0, 180, 1, -44),
+		Parent = self.MainFrame
+	})
 
-	local tabCorner = Instance.new("UICorner")
-	tabCorner.CornerRadius = UDim.new(0, 4)
-	tabCorner.Parent = self.TabContainer
+	--- [IMPROVEMENT] A subtle border on the right side of the tab container separates it from the content area.
+	Create("UIStroke", {
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Color = self.Theme.Border,
+		Thickness = 1,
+		Parent = self.TabContainer
+	})
+    -- [IMPROVEMENT] Don't round this container, it should sit flush with the bottom and right edges.
 
-	local tabGradient = Instance.new("UIGradient")
-	tabGradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(230, 230, 230))
-	}
-	tabGradient.Rotation = 90
-	tabGradient.Parent = self.TabContainer
+	--- [IMPROVEMENT] Removed the bright UIGradient for a cleaner, flatter look.
+	-- Create("UIGradient", { ... }) -- This was removed.
 
-	self.TabList = Instance.new("ScrollingFrame")
-	self.TabList.Name = "TabList"
-	self.TabList.BackgroundTransparency = 1
-	self.TabList.BorderSizePixel = 0
-	self.TabList.Position = UDim2.new(0, 0, 0, 10)
-	self.TabList.Size = UDim2.new(1, 0, 1, -20)
-	self.TabList.ScrollBarThickness = 3
-	self.TabList.ScrollBarImageColor3 = self.Theme.Accent
-	self.TabList.Parent = self.TabContainer
+	self.TabList = Create("ScrollingFrame", {
+		Name = "TabList",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Position = UDim2.new(0, 5, 0, 10),
+		Size = UDim2.new(1, -10, 1, -20),
+		ScrollBarThickness = 4, -- [IMPROVEMENT] Slightly thicker scrollbar can be easier to see/use
+		ScrollBarImageColor3 = self.Theme.Border, -- [IMPROVEMENT] Using a more subtle border color looks cleaner
+		Parent = self.TabContainer
+	})
 
-	local tabListLayout = Instance.new("UIListLayout")
-	tabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	tabListLayout.Padding = UDim.new(0, 5)
-	tabListLayout.Parent = self.TabList
+	Create("UIListLayout", {
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Padding = UDim.new(0, 5),
+		Parent = self.TabList
+	})
 
-	-- Content Container (shifted to match new TabContainer width)
-	self.ContentContainer = Instance.new("Frame")
-	self.ContentContainer.Name = "ContentContainer"
-	self.ContentContainer.BackgroundTransparency = 1
-	self.ContentContainer.Position = UDim2.new(0, 180, 0, 40)
-	self.ContentContainer.Size = UDim2.new(1, -180, 1, -40)
-	self.ContentContainer.Parent = self.MainFrame
-
-	local ContentContainerCorner = Instance.new("UICorner")
-	closeCorner.CornerRadius = UDim.new(0, 4)
-	closeCorner.Parent = self.ContentContainer
-
-	Round(self.MainFrame)
-	Round(self.TitleBar)
-	Round(self.TabContainer)
-	Round(self.CloseButton, UDim.new(0, 6))
-	Round(self.ContentContainer)
-
+	-- Content Container
+	self.ContentContainer = Create("Frame", {
+		Name = "ContentContainer",
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0, 180, 0, 44), -- [IMPROVEMENT] Positioned to match new layout
+		Size = UDim2.new(1, -180, 1, -44),
+		Parent = self.MainFrame
+	})
 	
-	-- Draggable TitleBar
-	local dragging, dragStart, startPos = false
+	-- No need to round this, its corners are hidden by the main frame layout.
 
-	self.TitleBar.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = true
-			dragStart = input.Position
-			startPos = self.MainFrame.Position
-		end
-	end)
+	--// Draggable Behavior
+	self:SetupDragging()
 
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-			local delta = input.Position - dragStart
-			self.MainFrame.Position = UDim2.new(
-				startPos.X.Scale,
-				startPos.X.Offset + delta.X,
-				startPos.Y.Scale,
-				startPos.Y.Offset + delta.Y
-			)
-		end
-	end)
-
-	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = false
-		end
-	end)
-
-	-- Close/Open Keybind
-	UserInputService.InputBegan:Connect(function(input)
+	--// Keybind Handling
+	table.insert(self.Connections, UserInputService.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then return end
 		if input.KeyCode == self.CloseBind then
 			self.MainFrame.Visible = not self.MainFrame.Visible
 		end
-	end)
+	end))
 
-	-- Load saved config
+	--// Load saved config
 	if self.LoadConfig and self.ConfigFolder then
 		self:LoadConfiguration()
 	end
 
 	return self
 end
-
 
 -- Tab Class
 local Tab = {}
