@@ -21,10 +21,6 @@ AlexchadGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 AlexchadGui.ResetOnSpawn = false
 AlexchadGui.Parent = Player.PlayerGui
 
-if AlexchadGui:FindFirstChild(UI_NAME) then
-	AlexchadGui:FindFirstChild(UI_NAME):Destroy()
-end
-
 local Themes = {
 	-- Dark Theme
 	Dark = {
