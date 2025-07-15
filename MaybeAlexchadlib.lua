@@ -186,7 +186,7 @@ local function AddTooltip(element, text)
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Visible = false,
-		ZIndex = 15, -- High ZIndex to ensure visibility
+		ZIndex = 99999, -- High ZIndex to ensure visibility
 		Parent = element
 	})
 	Round(tooltip, UDim.new(0, 4))
