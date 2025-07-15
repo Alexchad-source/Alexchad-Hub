@@ -199,11 +199,17 @@ local Window = {}
 Window.__index = Window
 
 function Library:CreateWindow(config)
+	Library:Notify({
+		Title = "Loading "..config.Name,
+		Content = "Loading",
+		Duration = 3,
+	})
+	wait(2)
 	config = config or {}
 	local self = setmetatable({}, Window)
 
 	self.Name = config.Name or "KavoUI Window"
-	self.Theme = config.Themes or Themes.Dark
+	self.Theme = config.Theme or Themes.Dark
 	self.SaveConfig = config.SaveConfig or false
 	self.LoadConfig = config.LoadConfig or false
 	self.ConfigFolder = config.ConfigFolder or "KavoUIConfigs"
@@ -302,7 +308,8 @@ function Library:CreateWindow(config)
 		BackgroundColor3 = self.Theme.SecondaryBackground,
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, 0, 0, 44),
-		Size = UDim2.new(0, 180, 1, -44),
+		Size = UDim2.new(0, 178, 1, -44),
+		BackgroundTransparency = 1,
 		Parent = self.MainFrame
 	})
 	Create("UIStroke", {
