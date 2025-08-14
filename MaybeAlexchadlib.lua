@@ -797,170 +797,285 @@ function Tab:CreateSlider(config)
 end
 
 function Tab:CreateDropdown(config)
-	config = config or {}
-	local name = config.Name or "Dropdown"
-	local options = config.Options or {}
-	local callback = config.Callback or function() end
-	local save = config.Save or false
-	local flag = config.Flag
-	local multiSelect = config.MultiSelect or false
-	local default = (flag and self.Window.Flags[flag]) or config.Default or (multiSelect and {} or options[1] or "")
-	local tooltip = config.Tooltip
+    config = config or {}
+    local name = config.Name or "Dropdown"
+    local options = table.clone(config.Options or {})
+    local callback = config.Callback or function() end
+    local save = config.Save or false
+    local flag = config.Flag
+    local multiSelect = config.MultiSelect or false
+    local maxHeight = config.MaxHeight or 150 -- visible px height clamp
+    local enableSearch = (config.Search ~= false) and (multiSelect or #options >= 8)
 
-	local dropdownFrame = CreateElementContainer(self, name, 40)
-	dropdownFrame.ElementLabel.Size = UDim2.new(0.4, -10, 1, 0)
-	dropdownFrame.ClipsDescendants = false -- Prevent clipping of dropdown list
+    local default
+    if flag and self.Window.Flags[flag] ~= nil then
+        default = self.Window.Flags[flag]
+    else
+        default = config.Default or (multiSelect and {} or options[1] or "")
+    end
 
-	local dropdownButton = Create("TextButton", {
-		Name = "DropdownButton",
-		BackgroundColor3 = self.Window.Theme.TertiaryBackground,
-		BorderSizePixel = 0,
-		Position = UDim2.new(0.4, 0, 0.5, -15),
-		Size = UDim2.new(0.6, -10, 0, 30),
-		Font = Enum.Font.Gotham,
-		Text = multiSelect and table.concat(default, ", ") or default,
-		TextColor3 = self.Window.Theme.Text,
-		TextSize = 13,
-		ZIndex = 10, -- Higher ZIndex for visibility
-		Parent = dropdownFrame
-	})
-	Round(dropdownButton, UDim.new(0, 4))
-	if tooltip then
-		AddTooltip(dropdownButton, tooltip)
-	end
+    local tooltip = config.Tooltip
+    local theme = self.Window.Theme
 
-	local dropdownIcon = Create("TextLabel", {
-		BackgroundTransparency = 1,
-		Position = UDim2.new(1, -25, 0, 0),
-		Size = UDim2.new(0, 25, 1, 0),
-		Font = Enum.Font.Gotham,
-		Text = "▼",
-		TextColor3 = self.Window.Theme.SecondaryText,
-		TextSize = 10,
-		ZIndex = 10,
-		Parent = dropdownButton
-	})
+    -- Row container
+    local dropdownFrame = CreateElementContainer(self, name, 40)
+    dropdownFrame.ElementLabel.Size = UDim2.new(0.4, -10, 1, 0)
+    dropdownFrame.ClipsDescendants = false
 
-	local dropdownList = Create("Frame", {
-		Name = "DropdownList",
-		BackgroundColor3 = self.Window.Theme.SecondaryBackground,
-		BorderSizePixel = 0,
-		Position = UDim2.new(0, 0, 1, 2), -- Adjusted to align with button
-		Size = UDim2.new(1, 0, 0, 0),
-		Visible = false,
-		ZIndex = 15, -- Higher ZIndex to appear above content
-		Parent = dropdownButton
-	})
-	Round(dropdownList, UDim.new(0, 4))
-	CreateShadow(dropdownList, 0.5)
-	Create("UIStroke", {
-		Color = self.Window.Theme.Border,
-		Transparency = 0.7,
-		Thickness = 1,
-		Parent = dropdownList
-	})
-	Create("UIListLayout", {
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Parent = dropdownList
-	})
+    -- Button (stays in row)
+    local dropdownButton = Create("TextButton", {
+        Name = "DropdownButton",
+        BackgroundColor3 = theme.TertiaryBackground,
+        BorderSizePixel = 0,
+        Position = UDim2.new(0.4, 0, 0.5, -15),
+        Size = UDim2.new(0.6, -10, 0, 30),
+        Font = Enum.Font.Gotham,
+        Text = "",
+        TextColor3 = theme.Text,
+        TextSize = 13,
+        ZIndex = 10,
+        Parent = dropdownFrame
+    })
+    Round(dropdownButton, UDim.new(0, 4))
+    if tooltip then AddTooltip(dropdownButton, tooltip) end
+    AddHoverEffect(dropdownButton, theme.SecondaryBackground, theme.TertiaryBackground)
 
-	local selected = multiSelect and table.clone(default) or default
-	local expanded = false
+    local dropdownIcon = Create("TextLabel", {
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -25, 0, 0),
+        Size = UDim2.new(0, 25, 1, 0),
+        Font = Enum.Font.Gotham,
+        Text = "▼",
+        TextColor3 = theme.SecondaryText,
+        TextSize = 10,
+        ZIndex = 10,
+        Parent = dropdownButton
+    })
 
-	local function updateDropdown(newValue, isInit)
-		selected = newValue
-		dropdownButton.Text = multiSelect and table.concat(selected, ", ") or newValue
-		if not isInit then
-			pcall(callback, selected)
-		end
-		if flag then
-			self.Window.Flags[flag] = selected
-			if save and self.Window.SaveConfig and not isInit then
-				self.Window:SaveConfiguration()
-			end
-		end
-	end
+    -- Floating list (parented to MainFrame to escape ScrollingFrame clipping)
+    local floatParent = self.Window.MainFrame
+    local dropdownList = Create("ScrollingFrame", {
+        Name = "DropdownList",
+        BackgroundColor3 = theme.SecondaryBackground,
+        BorderSizePixel = 0,
+        Position = UDim2.new(0, 0, 0, 0), -- set when opening
+        Size = UDim2.new(0, 0, 0, 0),     -- set when opening
+        Visible = false,
+        ZIndex = 1000,
+        ScrollBarThickness = 4,
+        ScrollBarImageColor3 = theme.Border,
+        CanvasSize = UDim2.new(0,0,0,0),
+        Parent = floatParent
+    })
+    Round(dropdownList, UDim.new(0, 4))
+    CreateShadow(dropdownList, 0.5)
+    local dlStroke = Create("UIStroke", {
+        Color = theme.Border,
+        Transparency = 0.7,
+        Thickness = 1,
+        Parent = dropdownList
+    })
+    local padding = Create("UIPadding", {
+        PaddingTop = UDim.new(0, 6),
+        PaddingBottom = UDim.new(0, 6),
+        PaddingLeft = UDim.new(0, 6),
+        PaddingRight = UDim.new(0, 6),
+        Parent = dropdownList
+    })
+    local layout = Create("UIListLayout", {
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0, 4),
+        Parent = dropdownList
+    })
 
-	local function toggleDropdown()
-		expanded = not expanded
-		local targetHeight = expanded and (#options * 30 + (multiSelect and 40 or 0)) or 0
-		if expanded then
-			dropdownList.Visible = true
-			CreateTween(dropdownList, {Size = UDim2.new(1, 0, 0, targetHeight)}, 0.2)
-			CreateTween(dropdownIcon, {Rotation = 180}, 0.2)
-		else
-			CreateTween(dropdownIcon, {Rotation = 0}, 0.2)
-			local tweenOut = CreateTween(dropdownList, {Size = UDim2.new(1, 0, 0, 0)}, 0.2)
-			tweenOut.Completed:Connect(function()
-				dropdownList.Visible = false
-			end)
-		end
-	end
+    local searchBox
+    if enableSearch then
+        searchBox = Create("TextBox", {
+            Name = "SearchBox",
+            BackgroundColor3 = theme.TertiaryBackground,
+            BorderSizePixel = 0,
+            Size = UDim2.new(1, 0, 0, 28),
+            Font = Enum.Font.Gotham,
+            PlaceholderText = "Search...",
+            Text = "",
+            TextColor3 = theme.Text,
+            PlaceholderColor3 = theme.SecondaryText,
+            TextSize = 13,
+            ZIndex = 1001,
+            Parent = dropdownList
+        })
+        Round(searchBox, UDim.new(0, 4))
+    end
 
-	dropdownButton.MouseButton1Click:Connect(toggleDropdown)
+    -- Helpers
+    local selected = multiSelect and table.clone(default) or default
+    local optionButtons = {}
+    local listOpen = false
+    local outsideConn, posConn1, posConn2, posConn3, posConn4
 
-	if multiSelect then
-		local searchBox = Create("TextBox", {
-			Name = "SearchBox",
-			BackgroundColor3 = self.Window.Theme.TertiaryBackground,
-			BorderSizePixel = 0,
-			Size = UDim2.new(1, -10, 0, 30),
-			Position = UDim2.new(0, 5, 0, 5),
-			Font = Enum.Font.Gotham,
-			PlaceholderText = "Search...",
-			Text = "",
-			TextColor3 = self.Window.Theme.Text,
-			TextSize = 13,
-			ZIndex = 15,
-			Parent = dropdownList
-		})
-		Round(searchBox, UDim.new(0, 4))
-		searchBox:GetPropertyChangedSignal("Text"):Connect(function()
-			local searchText = searchBox.Text:lower()
-			for _, optionButton in ipairs(dropdownList:GetChildren()) do
-				if optionButton:IsA("TextButton") then
-					optionButton.Visible = optionButton.Text:lower():find(searchText) ~= nil
-				end
-			end
-		end)
-	end
+    local function setSelected(newVal, isInit)
+        selected = newVal
+        dropdownButton.Text = multiSelect and ((#selected > 0 and table.concat(selected, ", ")) or "None") or tostring(selected or "")
+        if not isInit then
+            pcall(callback, selected)
+        end
+        if flag then
+            self.Window.Flags[flag] = selected
+            if save and self.Window.SaveConfig and not isInit then
+                self.Window:SaveConfiguration()
+            end
+        end
+    end
 
-	for _, option in ipairs(options) do
-		local optionButton = Create("TextButton", {
-			Name = option,
-			BackgroundColor3 = self.Window.Theme.SecondaryBackground,
-			BorderSizePixel = 0,
-			Size = UDim2.new(1, 0, 0, 30),
-			Font = Enum.Font.Gotham,
-			Text = option,
-			TextColor3 = self.Window.Theme.SecondaryText,
-			TextSize = 13,
-			ZIndex = 15,
-			Parent = dropdownList
-		})
-		AddHoverEffect(optionButton, self.Window.Theme.TertiaryBackground, self.Window.Theme.SecondaryBackground)
-		optionButton.MouseButton1Click:Connect(function()
-			if multiSelect then
-				if table.find(selected, option) then
-					table.remove(selected, table.find(selected, option))
-				else
-					table.insert(selected, option)
-				end
-				updateDropdown(selected, false)
-			else
-				toggleDropdown()
-				updateDropdown(option, false)
-			end
-		end)
-	end
+    local function clearOptions()
+        for _, b in ipairs(optionButtons) do
+            if b and b.Parent then b:Destroy() end
+        end
+        table.clear(optionButtons)
+    end
 
-	updateDropdown(default, true)
-	return {
-		Frame = dropdownFrame,
-		SetValue = function(val)
-			updateDropdown(val, false)
-		end
-	}
+    local function rebuildOptions(filterText)
+        clearOptions()
+        local f = (filterText or ""):lower()
+        for _, opt in ipairs(options) do
+            local text = tostring(opt)
+            if f == "" or text:lower():find(f, 1, true) then
+                local optBtn = Create("TextButton", {
+                    Name = text,
+                    BackgroundColor3 = theme.SecondaryBackground,
+                    BorderSizePixel = 0,
+                    Size = UDim2.new(1, 0, 0, 28),
+                    Font = Enum.Font.Gotham,
+                    Text = text,
+                    TextColor3 = (multiSelect and table.find(selected, opt)) or (not multiSelect and selected == opt) and theme.Text or theme.SecondaryText,
+                    TextSize = 13,
+                    ZIndex = 1001,
+                    Parent = dropdownList
+                })
+                AddHoverEffect(optBtn, theme.TertiaryBackground, theme.SecondaryBackground)
+                optBtn.MouseButton1Click:Connect(function()
+                    if multiSelect then
+                        local idx = table.find(selected, opt)
+                        if idx then
+                            table.remove(selected, idx)
+                        else
+                            table.insert(selected, opt)
+                        end
+                        setSelected(selected, false)
+                        -- refresh colors
+                        for _, b in ipairs(optionButtons) do
+                            b.TextColor3 = table.find(selected, b.Name) and theme.Text or theme.SecondaryText
+                        end
+                    else
+                        setSelected(opt, false)
+                        toggle(false)
+                    end
+                end)
+                table.insert(optionButtons, optBtn)
+            end
+        end
+    end
+
+    local function contentHeight()
+        return layout.AbsoluteContentSize.Y + padding.PaddingTop.Offset + padding.PaddingBottom.Offset
+    end
+
+    local function placeList()
+        local absBtnPos = dropdownButton.AbsolutePosition
+        local absBtnSize = dropdownButton.AbsoluteSize
+        local parentAbs = floatParent.AbsolutePosition
+        local x = absBtnPos.X - parentAbs.X
+        local y = absBtnPos.Y - parentAbs.Y + absBtnSize.Y + 2
+        local w = absBtnSize.X
+        dropdownList.Position = UDim2.fromOffset(x, y)
+        dropdownList.Size = UDim2.fromOffset(w, dropdownList.Size.Y.Offset)
+    end
+
+    local function resizeList()
+        local h = math.min(contentHeight(), maxHeight)
+        CreateTween(dropdownList, {Size = UDim2.fromOffset(dropdownList.Size.X.Offset, h)}, 0.15)
+        dropdownList.CanvasSize = UDim2.fromOffset(0, contentHeight())
+    end
+
+    if searchBox then
+        searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+            rebuildOptions(searchBox.Text)
+            dropdownList.CanvasSize = UDim2.fromOffset(0, contentHeight())
+            resizeList()
+        end)
+    end
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        dropdownList.CanvasSize = UDim2.fromOffset(0, contentHeight())
+    end)
+
+    local function closeList()
+        if not listOpen then return end
+        listOpen = false
+        CreateTween(dropdownIcon, {Rotation = 0}, 0.15)
+        local tweenOut = CreateTween(dropdownList, {Size = UDim2.fromOffset(dropdownList.Size.X.Offset, 0)}, 0.15)
+        tweenOut.Completed:Connect(function()
+            if not listOpen then dropdownList.Visible = false end
+        end)
+        if outsideConn then outsideConn:Disconnect(); outsideConn = nil end
+        if posConn1 then posConn1:Disconnect(); posConn1=nil end
+        if posConn2 then posConn2:Disconnect(); posConn2=nil end
+        if posConn3 then posConn3:Disconnect(); posConn3=nil end
+        if posConn4 then posConn4:Disconnect(); posConn4=nil end
+    end
+
+    function toggle(state)
+        local want = (state == nil) and not listOpen or state
+        if want == listOpen then return end
+        if want then
+            listOpen = true
+            rebuildOptions(searchBox and searchBox.Text or "")
+            placeList()
+            dropdownList.Size = UDim2.fromOffset(dropdownButton.AbsoluteSize.X, 0)
+            dropdownList.Visible = true
+            CreateTween(dropdownIcon, {Rotation = 180}, 0.15)
+            resizeList()
+            -- close on outside click
+            outsideConn = UserInputService.InputBegan:Connect(function(input, gpe)
+                if gpe then return end
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    local pos = input.Position
+                    local function inside(gui)
+                        local p, s = gui.AbsolutePosition, gui.AbsoluteSize
+                        return pos.X >= p.X and pos.X <= p.X+s.X and pos.Y >= p.Y and pos.Y <= p.Y+s.Y
+                    end
+                    if not inside(dropdownButton) and not inside(dropdownList) then
+                        closeList()
+                    end
+                end
+            end)
+            -- follow button when moving/scrolling
+            posConn1 = dropdownButton:GetPropertyChangedSignal("AbsolutePosition"):Connect(placeList)
+            posConn2 = dropdownButton:GetPropertyChangedSignal("AbsoluteSize"):Connect(placeList)
+            posConn3 = self.Content:GetPropertyChangedSignal("CanvasPosition"):Connect(placeList)
+            posConn4 = self.Window.MainFrame:GetPropertyChangedSignal("Position"):Connect(placeList)
+        else
+            closeList()
+        end
+    end
+
+    dropdownButton.MouseButton1Click:Connect(toggle)
+
+    -- Init
+    setSelected(default, true)
+
+    return {
+        Frame = dropdownFrame,
+        SetValue = function(val) setSelected(val, false) end,
+        GetValue = function() return selected end,
+        SetOptions = function(newOptions)
+            options = table.clone(newOptions or {})
+            if listOpen then
+                rebuildOptions(searchBox and searchBox.Text or "")
+                resizeList()
+            end
+        end,
+        Toggle = function(state) toggle(state) end
+    }
 end
 
 function Tab:CreateTextbox(config)
