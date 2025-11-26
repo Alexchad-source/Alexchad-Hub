@@ -1142,21 +1142,29 @@ function AlexchadLibrary:CreateWindow(options)
         })
         
         local TabContent = Utility:Create("ScrollingFrame", {
-            Name = tabName .. "Content",
-            Parent = MainContent,
-            BackgroundTransparency = 1,
-            Position = UDim2.new(0, 15, 0, 15),
-            Size = UDim2.new(1, -30, 1, -30),
-            ScrollBarThickness = 4,
-            ScrollBarImageColor3 = theme.Accent,
-            ScrollBarImageTransparency = 0.3,
-            CanvasSize = UDim2.new(0, 0, 0, 0),
-            AutomaticCanvasSize = Enum.AutomaticSize.Y,
-            Visible = false,
-            ClipsDescendants = true
-        }, {
-            Utility:Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 10) })
-        })
+		    Name = tabName .. "Content",
+		    Parent = MainContent,
+		    BackgroundTransparency = 1,
+		    Position = UDim2.new(0, 18, 0, 15),
+		    Size = UDim2.new(1, -36, 1, -30),  -- More horizontal padding
+		    ScrollBarThickness = 4,
+		    ScrollBarImageColor3 = theme.Accent,
+		    ScrollBarImageTransparency = 0.3,
+		    CanvasSize = UDim2.new(0, 0, 0, 0),
+		    AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		    Visible = false,
+		    ClipsDescendants = true
+		}, {
+		    Utility:Create("UIListLayout", { 
+		        SortOrder = Enum.SortOrder.LayoutOrder, 
+		        Padding = UDim.new(0, 10) 
+		    }),
+		    -- ADD this padding to prevent content touching edges
+		    Utility:Create("UIPadding", {
+		        PaddingLeft = UDim.new(0, 2),
+		        PaddingRight = UDim.new(0, 6)  -- Extra for scrollbar
+		    })
+		})
         
         Tab.Button = TabButton
         Tab.Content = TabContent
