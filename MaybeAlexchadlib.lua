@@ -10,6 +10,7 @@
 	"Make Notifications better with animations when dissapearing and better design" offensive just offensive
 ]]
 
+
 local AlexchadLibrary = {}
 
 -- Services
@@ -25,7 +26,7 @@ local Lighting = game:GetService("Lighting")
 local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
 
--- Get GUI parent
+-- Get proper GUI parent
 local function GetGuiParent()
     local success, result = pcall(function()
         if gethui then
@@ -40,7 +41,7 @@ end
 
 local GuiParent = GetGuiParent()
 
--- Clean up all existing blur effects to fix too much blur
+-- Clean up ALL existing blur effects
 local function CleanupAllBlur()
     for _, effect in pairs(Lighting:GetChildren()) do
         if effect:IsA("BlurEffect") and effect.Name:find("Rayfield") then
@@ -49,7 +50,7 @@ local function CleanupAllBlur()
     end
 end
 
--- Themes
+-- Theme Configuration
 local Themes = {
     Default = {
         Background = Color3.fromRGB(20, 20, 30),
@@ -184,139 +185,8 @@ local Themes = {
         GradientEnd = Color3.fromRGB(20, 50, 35)
     }
 }
---well not really but still works partly
-local LucideIcons = {
-    home = "rbxassetid://7733960981",
-    settings = "rbxassetid://7734053495",
-    user = "rbxassetid://7743878857",
-    users = "rbxassetid://7743878615",
-    search = "rbxassetid://7734068334",
-    menu = "rbxassetid://7734042983",
-    x = "rbxassetid://7743878326",
-    check = "rbxassetid://7733715400",
-    plus = "rbxassetid://7743878552",
-    minus = "rbxassetid://7734042803",
-    chevronDown = "rbxassetid://7734010953",
-    chevronUp = "rbxassetid://7734010806",
-    chevronLeft = "rbxassetid://7734010694",
-    chevronRight = "rbxassetid://7734011051",
-    eye = "rbxassetid://7733976083",
-    eyeOff = "rbxassetid://7733976287",
-    lock = "rbxassetid://7734027513",
-    unlock = "rbxassetid://7743878448",
-    star = "rbxassetid://7734068577",
-    heart = "rbxassetid://7733992555",
-    trash = "rbxassetid://7743878368",
-    edit = "rbxassetid://7733964370",
-    copy = "rbxassetid://7733943149",
-    save = "rbxassetid://7734053582",
-    download = "rbxassetid://7733959459",
-    upload = "rbxassetid://7743878489",
-    refresh = "rbxassetid://7734046912",
-    zap = "rbxassetid://7743878287",
-    target = "rbxassetid://7734083968",
-    crosshair = "rbxassetid://7733942861",
-    map = "rbxassetid://7734034182",
-    compass = "rbxassetid://7733935951",
-    navigation = "rbxassetid://7734043086",
-    layers = "rbxassetid://7734021655",
-    grid = "rbxassetid://7733989538",
-    box = "rbxassetid://7733717800",
-    package = "rbxassetid://7734043267",
-    gift = "rbxassetid://7733987084",
-    shoppingCart = "rbxassetid://7734060895",
-    creditCard = "rbxassetid://7733942696",
-    dollarSign = "rbxassetid://7733959217",
-    percent = "rbxassetid://7734043392",
-    barChart = "rbxassetid://7733711853",
-    pieChart = "rbxassetid://7734043508",
-    activity = "rbxassetid://7733674855",
-    trendingUp = "rbxassetid://7743878407",
-    trendingDown = "rbxassetid://7743878576",
-    award = "rbxassetid://7733707115",
-    flag = "rbxassetid://7733980039",
-    bookmark = "rbxassetid://7733717521",
-    tag = "rbxassetid://7734083803",
-    hash = "rbxassetid://7733992349",
-    atSign = "rbxassetid://7733706909",
-    link = "rbxassetid://7734027330",
-    externalLink = "rbxassetid://7733975802",
-    globe = "rbxassetid://7733987288",
-    mail = "rbxassetid://7734034009",
-    send = "rbxassetid://7734053670",
-    messageCircle = "rbxassetid://7734040426",
-    messageSquare = "rbxassetid://7734040591",
-    phone = "rbxassetid://7734043636",
-    video = "rbxassetid://7743878247",
-    camera = "rbxassetid://7733720994",
-    image = "rbxassetid://7734004482",
-    music = "rbxassetid://7734043022",
-    headphones = "rbxassetid://7733992476",
-    volume = "rbxassetid://7743878206",
-    volumeX = "rbxassetid://7743878165",
-    mic = "rbxassetid://7734042622",
-    micOff = "rbxassetid://7734042700",
-    play = "rbxassetid://7734043760",
-    pause = "rbxassetid://7734043321",
-    skipForward = "rbxassetid://7734060977",
-    skipBack = "rbxassetid://7734060760",
-    shuffle = "rbxassetid://7734060643",
-    repeat_ = "rbxassetid://7734046985",
-    clock = "rbxassetid://7733927815",
-    calendar = "rbxassetid://7733720861",
-    sun = "rbxassetid://7734077918",
-    moon = "rbxassetid://7734042886",
-    cloud = "rbxassetid://7733928175",
-    cloudRain = "rbxassetid://7733928424",
-    cloudSnow = "rbxassetid://7733928612",
-    wind = "rbxassetid://7743878124",
-    thermometer = "rbxassetid://7734084062",
-    droplet = "rbxassetid://7733959653",
-    umbrella = "rbxassetid://7743878530",
-    coffee = "rbxassetid://7733928842",
-    beer = "rbxassetid://7733711636",
-    pizza = "rbxassetid://7734043690",
-    apple = "rbxassetid://7733682050",
-    gamepad = "rbxassetid://7733986992",
-    sword = "rbxassetid://7734078091",
-    shield = "rbxassetid://7734060478",
-    wand = "rbxassetid://7743878083",
-    flame = "rbxassetid://7733980203",
-    skull = "rbxassetid://7734061095",
-    ghost = "rbxassetid://7733987160",
-    robot = "rbxassetid://7734047039",
-    bug = "rbxassetid://7733720560",
-    code = "rbxassetid://7733928762",
-    terminal = "rbxassetid://7734083886",
-    database = "rbxassetid://7733949090",
-    server = "rbxassetid://7734053762",
-    cpu = "rbxassetid://7733942953",
-    hardDrive = "rbxassetid://7733992426",
-    wifi = "rbxassetid://7743878042",
-    wifiOff = "rbxassetid://7743878001",
-    bluetooth = "rbxassetid://7733717285",
-    battery = "rbxassetid://7733711475",
-    batteryLow = "rbxassetid://7733711572",
-    batteryCharging = "rbxassetid://7733711373",
-    power = "rbxassetid://7734043908",
-    zap = "rbxassetid://7743878287"
-}
 
--- Resolve Lucide Icon
-local function ResolveIcon(icon)
-    if not icon or icon == "" then
-        return "", false
-    end
-    if icon:match("^rbxassetid://") then
-        return icon, true
-    end
-    if LucideIcons[icon] then
-        return LucideIcons[icon], true
-    end
-    return icon, false
-end
-
--- Utility
+-- Utility Functions
 local Utility = {}
 
 function Utility:Create(instanceType, properties, children)
@@ -408,7 +278,7 @@ function Utility:MakeDraggable(frame, handle, config)
     end)
 end
 
--- Config Manager
+-- Configuration Manager
 local ConfigManager = {}
 
 function ConfigManager:GetSaveFolder(folderName)
@@ -456,15 +326,15 @@ function AlexchadLibrary:CreateWindow(options)
     end
     
     -- Options
-    local windowName = options.Name or "Alexchad Ui"
-    local windowSubtitle = options.Subtitle or "Interface Suite(Ohh fancy naming)"
-    local windowVersion = options.Version or "v3.2(version of library)"
-    local loadingTitle = options.LoadingTitle or "Alexchad Interface"
+    local windowName = options.Name or "Rayfield"
+    local windowSubtitle = options.Subtitle or "Interface Suite"
+    local windowVersion = options.Version or "v3.2"
+    local loadingTitle = options.LoadingTitle or "Rayfield Interface"
     local loadingSubtitle = options.LoadingSubtitle or "Loading..."
     local themeName = options.Theme or "Default"
     local configSaving = options.ConfigurationSaving or {}
     local configEnabled = configSaving.Enabled or false
-    local configFolder = configSaving.FolderName or "AlexchadConfig"
+    local configFolder = configSaving.FolderName or "RayfieldConfig"
     local configFile = configSaving.FileName or "config"
     
     -- Config
@@ -508,7 +378,7 @@ function AlexchadLibrary:CreateWindow(options)
     
     -- ScreenGui
     local ScreenGui = Utility:Create("ScreenGui", {
-        Name = windowName,
+        Name = "RayfieldUI",
         Parent = GuiParent,
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         ResetOnSpawn = false,
@@ -857,42 +727,20 @@ function AlexchadLibrary:CreateWindow(options)
         Utility:Tween(MainContent, {BackgroundColor3 = newTheme.Container, BackgroundTransparency = newTheme.ContainerTransparency}, dur)
         
         -- Tab buttons
-		for _, tab in pairs(Window.Tabs) do
-		    local isCurrent = tab == Window.CurrentTab
-		    
-		    Utility:Tween(tab.Button, {
-		        BackgroundColor3 = isCurrent and newTheme.Accent or newTheme.Element,
-		        BackgroundTransparency = isCurrent and 0 or newTheme.ElementTransparency
-		    }, dur)
-		    
-		    Utility:Tween(tab.Label, {
-		        TextColor3 = isCurrent and newTheme.Text or newTheme.TextDark
-		    }, dur)
-		    
-		    -- Handle icon based on type (image or text)
-		    if tab.IconIsImage then
-		        Utility:Tween(tab.Icon, {
-		            ImageColor3 = isCurrent and newTheme.Text or newTheme.TextDark
-		        }, dur)
-		    else
-		        Utility:Tween(tab.Icon, {
-		            TextColor3 = isCurrent and newTheme.Text or newTheme.TextDark
-		        }, dur)
-		    end
-		    
-		    Utility:Tween(tab.Indicator, {
-		        BackgroundColor3 = newTheme.Accent
-		    }, dur)
-		    
-		    -- Update stroke
-		    local btnStroke = tab.Button:FindFirstChildOfClass("UIStroke")
-		    if btnStroke then
-		        Utility:Tween(btnStroke, {
-		            Color = newTheme.Border, 
-		            Transparency = newTheme.BorderTransparency + 0.3
-		        }, dur)
-		    end
-		end
+        for _, tab in pairs(Window.Tabs) do
+            local isCurrent = tab == Window.CurrentTab
+            Utility:Tween(tab.Button, {
+                BackgroundColor3 = isCurrent and newTheme.Accent or newTheme.Element,
+                BackgroundTransparency = isCurrent and 0 or newTheme.ElementTransparency
+            }, dur)
+            Utility:Tween(tab.Label, {TextColor3 = isCurrent and newTheme.Text or newTheme.TextDark}, dur)
+            Utility:Tween(tab.Icon, {TextColor3 = isCurrent and newTheme.Text or newTheme.TextDark}, dur)
+            Utility:Tween(tab.Indicator, {BackgroundColor3 = newTheme.Accent}, dur)
+            
+            -- Update strokes
+            local btnStroke = tab.Button:FindFirstChildOfClass("UIStroke")
+            if btnStroke then Utility:Tween(btnStroke, {Color = newTheme.Border, Transparency = newTheme.BorderTransparency + 0.3}, dur) end
+        end
         
         -- Update all registered elements
         for _, ref in pairs(Window.ElementRefs) do
@@ -937,28 +785,17 @@ function AlexchadLibrary:CreateWindow(options)
                 Utility:Tween(ref.Arrow, {TextColor3 = newTheme.TextDark}, dur)
                 local frameStroke = ref.Frame:FindFirstChildOfClass("UIStroke")
                 if frameStroke then Utility:Tween(frameStroke, {Color = newTheme.Border}, dur) end
-				-- Update options - properly check selection state
-				for _, opt in pairs(ref.OptionsContainer:GetChildren()) do
-				    if opt:IsA("TextButton") then
-				        local dropdownValue = ref.Element.Value
-				        local isSelected = false
-				        
-				        -- Check if this option is selected
-				        if type(dropdownValue) == "table" then
-				            -- Multi-select dropdown
-				            isSelected = table.find(dropdownValue, opt.Name) ~= nil
-				        else
-				            -- Single-select dropdown
-				            isSelected = dropdownValue == opt.Name
-				        end
-				        
-				        Utility:Tween(opt, {
-				            BackgroundColor3 = isSelected and newTheme.Accent or newTheme.Container,
-				            BackgroundTransparency = isSelected and 0 or newTheme.ContainerTransparency,
-				            TextColor3 = isSelected and newTheme.Text or newTheme.TextDark
-				        }, dur)
-				    end
-				end
+                -- Update options
+                for _, opt in pairs(ref.OptionsContainer:GetChildren()) do
+                    if opt:IsA("TextButton") then
+                        local isSelected = opt.BackgroundTransparency < 0.1
+                        Utility:Tween(opt, {
+                            BackgroundColor3 = isSelected and newTheme.Accent or newTheme.Container,
+                            BackgroundTransparency = isSelected and 0 or newTheme.ContainerTransparency,
+                            TextColor3 = isSelected and newTheme.Text or newTheme.TextDark
+                        }, dur)
+                    end
+                end
                 
             elseif ref.Type == "Input" then
                 Utility:Tween(ref.Frame, {BackgroundColor3 = newTheme.Element, BackgroundTransparency = newTheme.ElementTransparency}, dur)
@@ -1237,13 +1074,12 @@ function AlexchadLibrary:CreateWindow(options)
     
     -- Create Tab
     function Window:CreateTab(tabOptions)
-                tabOptions = tabOptions or {}
+        tabOptions = tabOptions or {}
         local tabName = tabOptions.Name or "Tab"
         local tabIcon = tabOptions.Icon or "📁"
         
         local Tab = { Name = tabName, Sections = {} }
         
-        -- Tab Button
         local TabButton = Utility:Create("TextButton", {
             Name = tabName,
             Parent = TabList,
@@ -1257,48 +1093,24 @@ function AlexchadLibrary:CreateWindow(options)
             Utility:Create("UIStroke", { Color = theme.Border, Transparency = theme.BorderTransparency + 0.3, Thickness = 1 })
         })
         
-        -- Resolve icon (Lucide, emoji, or image ID)
-        local iconValue, isImage = ResolveIcon(tabIcon)
-        
-        -- Create appropriate icon element based on type
-        local TabIcon
-        if isImage then
-            -- Use ImageLabel for Lucide/image icons
-            TabIcon = Utility:Create("ImageLabel", {
-                Name = "Icon",
-                Parent = TabButton,
-                BackgroundTransparency = 1,
-                Position = UDim2.new(0, 10, 0.5, 0),
-                Size = UDim2.new(0, 18, 0, 18),
-                AnchorPoint = Vector2.new(0, 0.5),
-                Image = iconValue,
-                ImageColor3 = theme.TextDark,
-                ScaleType = Enum.ScaleType.Fit
-            })
-        else
-            -- Use TextLabel for emoji icons
-            TabIcon = Utility:Create("TextLabel", {
-                Name = "Icon",
-                Parent = TabButton,
-                BackgroundTransparency = 1,
-                Position = UDim2.new(0, 10, 0, 0),
-                Size = UDim2.new(0, 25, 1, 0),
-                Font = Enum.Font.Gotham,
-                Text = iconValue,
-                TextColor3 = theme.TextDark,
-                TextSize = 16
-            })
-        end
-        
-        -- Store icon type for theme updates
-        Tab.IconIsImage = isImage
+        local TabIcon = Utility:Create("TextLabel", {
+            Name = "Icon",
+            Parent = TabButton,
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, 10, 0, 0),
+            Size = UDim2.new(0, 25, 1, 0),
+            Font = Enum.Font.Gotham,
+            Text = tabIcon,
+            TextColor3 = theme.TextDark,
+            TextSize = 16
+        })
         
         local TabLabel = Utility:Create("TextLabel", {
             Name = "Label",
             Parent = TabButton,
             BackgroundTransparency = 1,
-            Position = UDim2.new(0, isImage and 34 or 38, 0, 0),
-            Size = UDim2.new(1, isImage and -44 or -48, 1, 0),
+            Position = UDim2.new(0, 38, 0, 0),
+            Size = UDim2.new(1, -48, 1, 0),
             Font = Enum.Font.GothamSemibold,
             Text = tabName,
             TextColor3 = theme.TextDark,
@@ -1318,13 +1130,12 @@ function AlexchadLibrary:CreateWindow(options)
             Utility:Create("UICorner", { CornerRadius = UDim.new(1, 0) })
         })
         
-        -- Tab Content with padding fix
         local TabContent = Utility:Create("ScrollingFrame", {
             Name = tabName .. "Content",
             Parent = MainContent,
             BackgroundTransparency = 1,
-            Position = UDim2.new(0, 18, 0, 15),
-            Size = UDim2.new(1, -36, 1, -30),
+            Position = UDim2.new(0, 15, 0, 15),
+            Size = UDim2.new(1, -30, 1, -30),
             ScrollBarThickness = 4,
             ScrollBarImageColor3 = theme.Accent,
             ScrollBarImageTransparency = 0.3,
@@ -1333,11 +1144,7 @@ function AlexchadLibrary:CreateWindow(options)
             Visible = false,
             ClipsDescendants = true
         }, {
-            Utility:Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 10) }),
-            Utility:Create("UIPadding", {
-                PaddingLeft = UDim.new(0, 2),
-                PaddingRight = UDim.new(0, 6)
-            })
+            Utility:Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 10) })
         })
         
         Tab.Button = TabButton
@@ -1346,7 +1153,6 @@ function AlexchadLibrary:CreateWindow(options)
         Tab.Label = TabLabel
         Tab.Indicator = TabIndicator
         
-        -- Get tab index for animation direction
         local function GetTabIndex(t)
             for i, tab in ipairs(Window.Tabs) do
                 if tab == t then return i end
@@ -1354,7 +1160,7 @@ function AlexchadLibrary:CreateWindow(options)
             return 0
         end
         
-        -- Improved tab selection with smooth vertical slide animation
+        -- Tab selection with VERTICAL slide animation
         local function SelectTab()
             if Window.CurrentTab == Tab then return end
             
@@ -1363,146 +1169,51 @@ function AlexchadLibrary:CreateWindow(options)
             local newIdx = GetTabIndex(Tab)
             local goingDown = newIdx > oldIdx
             
-            -- Animation distances
-            local slideDistance = 80
-            local slideOutY = goingDown and -slideDistance or slideDistance
-            local slideInY = goingDown and slideDistance or -slideDistance
-            
-            -- Deselect old tab with smooth animation
+            -- Deselect old tab
             if oldTab then
-                -- Animate tab button back to default
-                Utility:Tween(oldTab.Button, {
-                    BackgroundColor3 = theme.Element, 
-                    BackgroundTransparency = theme.ElementTransparency,
-                    Size = UDim2.new(1, 0, 0, 40)
-                }, Config.AnimationSpeed)
-                
+                Utility:Tween(oldTab.Button, {BackgroundColor3 = theme.Element, BackgroundTransparency = theme.ElementTransparency}, Config.AnimationSpeed)
                 Utility:Tween(oldTab.Label, {TextColor3 = theme.TextDark}, Config.AnimationSpeed)
+                Utility:Tween(oldTab.Icon, {TextColor3 = theme.TextDark}, Config.AnimationSpeed)
+                Utility:Tween(oldTab.Indicator, {BackgroundTransparency = 1}, Config.AnimationSpeed)
                 
-                -- Handle icon color based on type
-                if oldTab.IconIsImage then
-                    Utility:Tween(oldTab.Icon, {ImageColor3 = theme.TextDark}, Config.AnimationSpeed)
-                else
-                    Utility:Tween(oldTab.Icon, {TextColor3 = theme.TextDark}, Config.AnimationSpeed)
-                end
+                -- Slide out old content (opposite direction)
+                local slideOutY = goingDown and -60 or 60
+                Utility:Tween(oldTab.Content, {Position = UDim2.new(0, 15, 0, slideOutY)}, Config.AnimationSpeed * 0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
                 
-                -- Shrink indicator
-                Utility:Tween(oldTab.Indicator, {
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(0, 3, 0.4, 0)
-                }, Config.AnimationSpeed)
-                
-                -- Fade out elements first
-                for _, element in pairs(oldTab.Content:GetChildren()) do
-                    if element:IsA("Frame") then
-                        Utility:Tween(element, {BackgroundTransparency = 1}, Config.AnimationSpeed * 0.4)
-                    end
-                end
-                
-                -- Slide out old content
-                Utility:Tween(oldTab.Content, {
-                    Position = UDim2.new(0, 18, 0, slideOutY)
-                }, Config.AnimationSpeed * 0.6, Enum.EasingStyle.Back, Enum.EasingDirection.In)
-                
-                -- Hide after animation completes
                 task.delay(Config.AnimationSpeed * 0.5, function()
                     if oldTab.Content then
                         oldTab.Content.Visible = false
-                        oldTab.Content.Position = UDim2.new(0, 18, 0, 15)
-                        
-                        -- Reset element transparency
-                        for _, element in pairs(oldTab.Content:GetChildren()) do
-                            if element:IsA("Frame") then
-                                element.BackgroundTransparency = theme.ElementTransparency
-                            end
-                        end
+                        oldTab.Content.Position = UDim2.new(0, 15, 0, 15)
                     end
                 end)
             end
             
-            -- Select new tab with smooth animation
+            -- Select new tab
             Window.CurrentTab = Tab
-            
-            -- Animate tab button with subtle "pop" effect
-            Utility:Tween(TabButton, {
-                BackgroundColor3 = theme.Accent, 
-                BackgroundTransparency = 0,
-                Size = UDim2.new(1, 4, 0, 42)
-            }, Config.AnimationSpeed * 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-            
-            -- Settle back to normal size
-            task.delay(Config.AnimationSpeed * 0.5, function()
-                Utility:Tween(TabButton, {
-                    Size = UDim2.new(1, 0, 0, 40)
-                }, Config.AnimationSpeed * 0.3)
-            end)
-            
+            Utility:Tween(TabButton, {BackgroundColor3 = theme.Accent, BackgroundTransparency = 0}, Config.AnimationSpeed)
             Utility:Tween(TabLabel, {TextColor3 = theme.Text}, Config.AnimationSpeed)
+            Utility:Tween(TabIcon, {TextColor3 = theme.Text}, Config.AnimationSpeed)
+            Utility:Tween(TabIndicator, {BackgroundTransparency = 0}, Config.AnimationSpeed)
             
-            -- Handle icon color based on type
-            if Tab.IconIsImage then
-                Utility:Tween(TabIcon, {ImageColor3 = theme.Text}, Config.AnimationSpeed)
-            else
-                Utility:Tween(TabIcon, {TextColor3 = theme.Text}, Config.AnimationSpeed)
-            end
-            
-            -- Grow indicator
-            Utility:Tween(TabIndicator, {
-                BackgroundTransparency = 0,
-                Size = UDim2.new(0, 3, 0.6, 0)
-            }, Config.AnimationSpeed, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-            
-            -- Prepare new content for slide in
-            TabContent.Position = UDim2.new(0, 18, 0, slideInY)
+            -- Slide in new content
+            local slideInY = goingDown and 60 or -60
+            TabContent.Position = UDim2.new(0, 15, 0, slideInY)
             TabContent.Visible = true
             TabContent.CanvasPosition = Vector2.new(0, 0)
             
-            -- Start with elements transparent
-            for _, element in pairs(TabContent:GetChildren()) do
-                if element:IsA("Frame") then
-                    element.BackgroundTransparency = 1
-                end
-            end
-            
-            -- Slide in new content
-            Utility:Tween(TabContent, {
-                Position = UDim2.new(0, 18, 0, 15)
-            }, Config.AnimationSpeed * 0.8, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-            
-            -- Fade in elements with stagger effect
-            task.delay(Config.AnimationSpeed * 0.2, function()
-                local index = 0
-                for _, element in pairs(TabContent:GetChildren()) do
-                    if element:IsA("Frame") then
-                        task.delay(index * 0.03, function()
-                            Utility:Tween(element, {
-                                BackgroundTransparency = theme.ElementTransparency
-                            }, Config.AnimationSpeed * 0.5)
-                        end)
-                        index = index + 1
-                    end
-                end
-            end)
-            
+            Utility:Tween(TabContent, {Position = UDim2.new(0, 15, 0, 15)}, Config.AnimationSpeed * 0.8, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
             Utility:Ripple(TabButton, theme, Config)
         end
         
-        -- Hover effects
         TabButton.MouseEnter:Connect(function()
             if Window.CurrentTab ~= Tab then
-                Utility:Tween(TabButton, {
-                    BackgroundColor3 = theme.ElementHover or theme.Element, 
-                    BackgroundTransparency = theme.ElementTransparency - 0.1
-                }, Config.AnimationSpeed * 0.5)
+                Utility:Tween(TabButton, {BackgroundColor3 = theme.ElementHover, BackgroundTransparency = theme.ElementTransparency - 0.1}, Config.AnimationSpeed * 0.5)
             end
         end)
         
         TabButton.MouseLeave:Connect(function()
             if Window.CurrentTab ~= Tab then
-                Utility:Tween(TabButton, {
-                    BackgroundColor3 = theme.Element, 
-                    BackgroundTransparency = theme.ElementTransparency
-                }, Config.AnimationSpeed * 0.5)
+                Utility:Tween(TabButton, {BackgroundColor3 = theme.Element, BackgroundTransparency = theme.ElementTransparency}, Config.AnimationSpeed * 0.5)
             end
         end)
         
@@ -1514,19 +1225,13 @@ function AlexchadLibrary:CreateWindow(options)
             TabButton.BackgroundColor3 = theme.Accent
             TabButton.BackgroundTransparency = 0
             TabLabel.TextColor3 = theme.Text
-            
-            -- Set icon color based on type
-            if isImage then
-                TabIcon.ImageColor3 = theme.Text
-            else
-                TabIcon.TextColor3 = theme.Text
-            end
-            
+            TabIcon.TextColor3 = theme.Text
             TabIndicator.BackgroundTransparency = 0
             TabContent.Visible = true
         end
         
         table.insert(Window.Tabs, Tab)
+        
         -- Create Section
         function Tab:CreateSection(sectionName)
             local Section = { Name = sectionName }
@@ -2999,4 +2704,4 @@ function AlexchadLibrary:IsMobile()
     return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 end
 
-return AlexchadLibrary
+return RayfieldLibrary
