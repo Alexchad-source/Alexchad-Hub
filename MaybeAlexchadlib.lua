@@ -1215,12 +1215,13 @@ function AlexchadLibrary:CreateWindow(options)
     
     -- Create Tab
     function Window:CreateTab(tabOptions)
-        tabOptions = tabOptions or {}
+                tabOptions = tabOptions or {}
         local tabName = tabOptions.Name or "Tab"
         local tabIcon = tabOptions.Icon or "📁"
         
         local Tab = { Name = tabName, Sections = {} }
         
+        -- Tab Button
         local TabButton = Utility:Create("TextButton", {
             Name = tabName,
             Parent = TabList,
@@ -1234,24 +1235,48 @@ function AlexchadLibrary:CreateWindow(options)
             Utility:Create("UIStroke", { Color = theme.Border, Transparency = theme.BorderTransparency + 0.3, Thickness = 1 })
         })
         
-        local TabIcon = Utility:Create("TextLabel", {
-            Name = "Icon",
-            Parent = TabButton,
-            BackgroundTransparency = 1,
-            Position = UDim2.new(0, 10, 0, 0),
-            Size = UDim2.new(0, 25, 1, 0),
-            Font = Enum.Font.Gotham,
-            Text = tabIcon,
-            TextColor3 = theme.TextDark,
-            TextSize = 16
-        })
+        -- Resolve icon (Lucide, emoji, or image ID)
+        local iconValue, isImage = ResolveIcon(tabIcon)
+        
+        -- Create appropriate icon element based on type
+        local TabIcon
+        if isImage then
+            -- Use ImageLabel for Lucide/image icons
+            TabIcon = Utility:Create("ImageLabel", {
+                Name = "Icon",
+                Parent = TabButton,
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 10, 0.5, 0),
+                Size = UDim2.new(0, 18, 0, 18),
+                AnchorPoint = Vector2.new(0, 0.5),
+                Image = iconValue,
+                ImageColor3 = theme.TextDark,
+                ScaleType = Enum.ScaleType.Fit
+            })
+        else
+            -- Use TextLabel for emoji icons
+            TabIcon = Utility:Create("TextLabel", {
+                Name = "Icon",
+                Parent = TabButton,
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 10, 0, 0),
+                Size = UDim2.new(0, 25, 1, 0),
+                Font = Enum.Font.Gotham,
+                Text = iconValue,
+                TextColor3 = theme.TextDark,
+                TextSize = 16
+            })
+        end
+        
+        -- Store icon type for theme updates
+        Tab.IconIsImage = isImage
         
         local TabLabel = Utility:Create("TextLabel", {
             Name = "Label",
             Parent = TabButton,
             BackgroundTransparency = 1,
-            Position = UDim2.new(0, 38, 0, 0),
-            Size = UDim2.new(1, -48, 1, 0),
+            Position = UDim2.new(0, isImage and 34 or 38, 0, 0),
+            Size = UDim2.new(1, isImage and -44 or -48, 1, 0),
             Font = Enum.Font.GothamSemibold,
             Text = tabName,
             TextColor3 = theme.TextDark,
@@ -1271,12 +1296,13 @@ function AlexchadLibrary:CreateWindow(options)
             Utility:Create("UICorner", { CornerRadius = UDim.new(1, 0) })
         })
         
+        -- Tab Content with padding fix
         local TabContent = Utility:Create("ScrollingFrame", {
             Name = tabName .. "Content",
             Parent = MainContent,
             BackgroundTransparency = 1,
-            Position = UDim2.new(0, 15, 0, 15),
-            Size = UDim2.new(1, -30, 1, -30),
+            Position = UDim2.new(0, 18, 0, 15),
+            Size = UDim2.new(1, -36, 1, -30),
             ScrollBarThickness = 4,
             ScrollBarImageColor3 = theme.Accent,
             ScrollBarImageTransparency = 0.3,
@@ -1285,7 +1311,11 @@ function AlexchadLibrary:CreateWindow(options)
             Visible = false,
             ClipsDescendants = true
         }, {
-            Utility:Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 10) })
+            Utility:Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 10) }),
+            Utility:Create("UIPadding", {
+                PaddingLeft = UDim.new(0, 2),
+                PaddingRight = UDim.new(0, 6)
+            })
         })
         
         Tab.Button = TabButton
@@ -1294,6 +1324,7 @@ function AlexchadLibrary:CreateWindow(options)
         Tab.Label = TabLabel
         Tab.Indicator = TabIndicator
         
+        -- Get tab index for animation direction
         local function GetTabIndex(t)
             for i, tab in ipairs(Window.Tabs) do
                 if tab == t then return i end
@@ -1301,7 +1332,7 @@ function AlexchadLibrary:CreateWindow(options)
             return 0
         end
         
-        -- Tab selection with VERTICAL slide animation
+        -- Improved tab selection with smooth vertical slide animation
         local function SelectTab()
             if Window.CurrentTab == Tab then return end
             
@@ -1310,51 +1341,146 @@ function AlexchadLibrary:CreateWindow(options)
             local newIdx = GetTabIndex(Tab)
             local goingDown = newIdx > oldIdx
             
-            -- Deselect old tab
+            -- Animation distances
+            local slideDistance = 80
+            local slideOutY = goingDown and -slideDistance or slideDistance
+            local slideInY = goingDown and slideDistance or -slideDistance
+            
+            -- Deselect old tab with smooth animation
             if oldTab then
-                Utility:Tween(oldTab.Button, {BackgroundColor3 = theme.Element, BackgroundTransparency = theme.ElementTransparency}, Config.AnimationSpeed)
+                -- Animate tab button back to default
+                Utility:Tween(oldTab.Button, {
+                    BackgroundColor3 = theme.Element, 
+                    BackgroundTransparency = theme.ElementTransparency,
+                    Size = UDim2.new(1, 0, 0, 40)
+                }, Config.AnimationSpeed)
+                
                 Utility:Tween(oldTab.Label, {TextColor3 = theme.TextDark}, Config.AnimationSpeed)
-                Utility:Tween(oldTab.Icon, {TextColor3 = theme.TextDark}, Config.AnimationSpeed)
-                Utility:Tween(oldTab.Indicator, {BackgroundTransparency = 1}, Config.AnimationSpeed)
                 
-                -- Slide out old content (opposite direction)
-                local slideOutY = goingDown and -60 or 60
-                Utility:Tween(oldTab.Content, {Position = UDim2.new(0, 15, 0, slideOutY)}, Config.AnimationSpeed * 0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+                -- Handle icon color based on type
+                if oldTab.IconIsImage then
+                    Utility:Tween(oldTab.Icon, {ImageColor3 = theme.TextDark}, Config.AnimationSpeed)
+                else
+                    Utility:Tween(oldTab.Icon, {TextColor3 = theme.TextDark}, Config.AnimationSpeed)
+                end
                 
+                -- Shrink indicator
+                Utility:Tween(oldTab.Indicator, {
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(0, 3, 0.4, 0)
+                }, Config.AnimationSpeed)
+                
+                -- Fade out elements first
+                for _, element in pairs(oldTab.Content:GetChildren()) do
+                    if element:IsA("Frame") then
+                        Utility:Tween(element, {BackgroundTransparency = 1}, Config.AnimationSpeed * 0.4)
+                    end
+                end
+                
+                -- Slide out old content
+                Utility:Tween(oldTab.Content, {
+                    Position = UDim2.new(0, 18, 0, slideOutY)
+                }, Config.AnimationSpeed * 0.6, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+                
+                -- Hide after animation completes
                 task.delay(Config.AnimationSpeed * 0.5, function()
                     if oldTab.Content then
                         oldTab.Content.Visible = false
-                        oldTab.Content.Position = UDim2.new(0, 15, 0, 15)
+                        oldTab.Content.Position = UDim2.new(0, 18, 0, 15)
+                        
+                        -- Reset element transparency
+                        for _, element in pairs(oldTab.Content:GetChildren()) do
+                            if element:IsA("Frame") then
+                                element.BackgroundTransparency = theme.ElementTransparency
+                            end
+                        end
                     end
                 end)
             end
             
-            -- Select new tab
+            -- Select new tab with smooth animation
             Window.CurrentTab = Tab
-            Utility:Tween(TabButton, {BackgroundColor3 = theme.Accent, BackgroundTransparency = 0}, Config.AnimationSpeed)
-            Utility:Tween(TabLabel, {TextColor3 = theme.Text}, Config.AnimationSpeed)
-            Utility:Tween(TabIcon, {TextColor3 = theme.Text}, Config.AnimationSpeed)
-            Utility:Tween(TabIndicator, {BackgroundTransparency = 0}, Config.AnimationSpeed)
             
-            -- Slide in new content
-            local slideInY = goingDown and 60 or -60
-            TabContent.Position = UDim2.new(0, 15, 0, slideInY)
+            -- Animate tab button with subtle "pop" effect
+            Utility:Tween(TabButton, {
+                BackgroundColor3 = theme.Accent, 
+                BackgroundTransparency = 0,
+                Size = UDim2.new(1, 4, 0, 42)
+            }, Config.AnimationSpeed * 0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+            
+            -- Settle back to normal size
+            task.delay(Config.AnimationSpeed * 0.5, function()
+                Utility:Tween(TabButton, {
+                    Size = UDim2.new(1, 0, 0, 40)
+                }, Config.AnimationSpeed * 0.3)
+            end)
+            
+            Utility:Tween(TabLabel, {TextColor3 = theme.Text}, Config.AnimationSpeed)
+            
+            -- Handle icon color based on type
+            if Tab.IconIsImage then
+                Utility:Tween(TabIcon, {ImageColor3 = theme.Text}, Config.AnimationSpeed)
+            else
+                Utility:Tween(TabIcon, {TextColor3 = theme.Text}, Config.AnimationSpeed)
+            end
+            
+            -- Grow indicator
+            Utility:Tween(TabIndicator, {
+                BackgroundTransparency = 0,
+                Size = UDim2.new(0, 3, 0.6, 0)
+            }, Config.AnimationSpeed, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+            
+            -- Prepare new content for slide in
+            TabContent.Position = UDim2.new(0, 18, 0, slideInY)
             TabContent.Visible = true
             TabContent.CanvasPosition = Vector2.new(0, 0)
             
-            Utility:Tween(TabContent, {Position = UDim2.new(0, 15, 0, 15)}, Config.AnimationSpeed * 0.8, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+            -- Start with elements transparent
+            for _, element in pairs(TabContent:GetChildren()) do
+                if element:IsA("Frame") then
+                    element.BackgroundTransparency = 1
+                end
+            end
+            
+            -- Slide in new content
+            Utility:Tween(TabContent, {
+                Position = UDim2.new(0, 18, 0, 15)
+            }, Config.AnimationSpeed * 0.8, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+            
+            -- Fade in elements with stagger effect
+            task.delay(Config.AnimationSpeed * 0.2, function()
+                local index = 0
+                for _, element in pairs(TabContent:GetChildren()) do
+                    if element:IsA("Frame") then
+                        task.delay(index * 0.03, function()
+                            Utility:Tween(element, {
+                                BackgroundTransparency = theme.ElementTransparency
+                            }, Config.AnimationSpeed * 0.5)
+                        end)
+                        index = index + 1
+                    end
+                end
+            end)
+            
             Utility:Ripple(TabButton, theme, Config)
         end
         
+        -- Hover effects
         TabButton.MouseEnter:Connect(function()
             if Window.CurrentTab ~= Tab then
-                Utility:Tween(TabButton, {BackgroundColor3 = theme.ElementHover, BackgroundTransparency = theme.ElementTransparency - 0.1}, Config.AnimationSpeed * 0.5)
+                Utility:Tween(TabButton, {
+                    BackgroundColor3 = theme.ElementHover or theme.Element, 
+                    BackgroundTransparency = theme.ElementTransparency - 0.1
+                }, Config.AnimationSpeed * 0.5)
             end
         end)
         
         TabButton.MouseLeave:Connect(function()
             if Window.CurrentTab ~= Tab then
-                Utility:Tween(TabButton, {BackgroundColor3 = theme.Element, BackgroundTransparency = theme.ElementTransparency}, Config.AnimationSpeed * 0.5)
+                Utility:Tween(TabButton, {
+                    BackgroundColor3 = theme.Element, 
+                    BackgroundTransparency = theme.ElementTransparency
+                }, Config.AnimationSpeed * 0.5)
             end
         end)
         
@@ -1366,13 +1492,19 @@ function AlexchadLibrary:CreateWindow(options)
             TabButton.BackgroundColor3 = theme.Accent
             TabButton.BackgroundTransparency = 0
             TabLabel.TextColor3 = theme.Text
-            TabIcon.TextColor3 = theme.Text
+            
+            -- Set icon color based on type
+            if isImage then
+                TabIcon.ImageColor3 = theme.Text
+            else
+                TabIcon.TextColor3 = theme.Text
+            end
+            
             TabIndicator.BackgroundTransparency = 0
             TabContent.Visible = true
         end
         
         table.insert(Window.Tabs, Tab)
-        
         -- Create Section
         function Tab:CreateSection(sectionName)
             local Section = { Name = sectionName }
