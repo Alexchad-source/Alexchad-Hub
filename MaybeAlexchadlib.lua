@@ -1,6 +1,6 @@
 --[[
     Alexchad Ui Library COMPLETE REMAKE. The old one was just a waste of space so  i deleted it.
-	This is just generally better
+	This is just generally better and in production and the OFFICAL ONE PLEASE ATLEAST CREDIT ME IF YOU PLAN TO edit it for yourself or else il have to add an license
 ]]
 
 local AlexchadLibrary = {}
