@@ -784,17 +784,28 @@ function AlexchadLibrary:CreateWindow(options)
                 Utility:Tween(ref.Arrow, {TextColor3 = newTheme.TextDark}, dur)
                 local frameStroke = ref.Frame:FindFirstChildOfClass("UIStroke")
                 if frameStroke then Utility:Tween(frameStroke, {Color = newTheme.Border}, dur) end
-                -- Update options
-                for _, opt in pairs(ref.OptionsContainer:GetChildren()) do
-                    if opt:IsA("TextButton") then
-                        local isSelected = opt.BackgroundTransparency < 0.1
-                        Utility:Tween(opt, {
-                            BackgroundColor3 = isSelected and newTheme.Accent or newTheme.Container,
-                            BackgroundTransparency = isSelected and 0 or newTheme.ContainerTransparency,
-                            TextColor3 = isSelected and newTheme.Text or newTheme.TextDark
-                        }, dur)
-                    end
-                end
+				-- Update options - properly check selection state
+				for _, opt in pairs(ref.OptionsContainer:GetChildren()) do
+				    if opt:IsA("TextButton") then
+				        local dropdownValue = ref.Element.Value
+				        local isSelected = false
+				        
+				        -- Check if this option is selected
+				        if type(dropdownValue) == "table" then
+				            -- Multi-select dropdown
+				            isSelected = table.find(dropdownValue, opt.Name) ~= nil
+				        else
+				            -- Single-select dropdown
+				            isSelected = dropdownValue == opt.Name
+				        end
+				        
+				        Utility:Tween(opt, {
+				            BackgroundColor3 = isSelected and newTheme.Accent or newTheme.Container,
+				            BackgroundTransparency = isSelected and 0 or newTheme.ContainerTransparency,
+				            TextColor3 = isSelected and newTheme.Text or newTheme.TextDark
+				        }, dur)
+				    end
+				end
                 
             elseif ref.Type == "Input" then
                 Utility:Tween(ref.Frame, {BackgroundColor3 = newTheme.Element, BackgroundTransparency = newTheme.ElementTransparency}, dur)
