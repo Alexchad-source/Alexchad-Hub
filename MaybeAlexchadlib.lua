@@ -2700,18 +2700,18 @@ function AlexchadLibrary:CreateWindow(options)
 end
 
 -- Static methods
-function RayfieldLibrary:GetThemes()
+function AlexchadLibrary:GetThemes()
     local list = {}
     for n, _ in pairs(Themes) do table.insert(list, n) end
     return list
 end
 
-function RayfieldLibrary:AddTheme(name, data)
+function AlexchadLibrary:AddTheme(name, data)
     Themes[name] = data
 end
 
-function RayfieldLibrary:IsMobile()
+function AlexchadLibrary:IsMobile()
     return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 end
 
-return RayfieldLibrary
+return AlexchadLibrary
