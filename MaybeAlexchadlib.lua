@@ -1,6 +1,13 @@
 --[[
     Alexchad Ui Library COMPLETE REMAKE. The old one was just a waste of space so  i deleted it.
 	This is just generally better and in production and the OFFICAL ONE PLEASE ATLEAST CREDIT ME IF YOU PLAN TO edit it for yourself or else il have to add an license
+	You can see the creation of things are similar to rayfield which is intended because its easy and most developers use it, espacially small ones.
+	Also it take significantly longer because i decided to make it pretty readable and lots of error handling and stuff.
+	KNOWN BUGS AS OFF 26th november 2025 : 1.when changing themes previous selected theme button stays highlighted but atleast in the current theme always so should be a quick fix
+	2.Things getting cut off a little from the sides
+	Suggestions by some people : "better tab switching animation" yeah idk really, "lucide icon soppurt for tabs" yeah im gonna idk when, "Gradient to the glassy background configurable in themes" yeah thats kinda needed?
+	"More configurable settings for blurring" yeah ive been kinda annyoed having blur when gui is minimized so yeah pretty soon "KEYBIND FIX" dude idk keybinds been to annoying tho
+	"Make Notifications better with animations when dissapearing and better design" offensive just offensive
 ]]
 
 local AlexchadLibrary = {}
@@ -18,7 +25,7 @@ local Lighting = game:GetService("Lighting")
 local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
 
--- Get proper GUI parent
+-- Get GUI parent
 local function GetGuiParent()
     local success, result = pcall(function()
         if gethui then
@@ -33,7 +40,7 @@ end
 
 local GuiParent = GetGuiParent()
 
--- Clean up ALL existing blur effects
+-- Clean up all existing blur effects to fix too much blur
 local function CleanupAllBlur()
     for _, effect in pairs(Lighting:GetChildren()) do
         if effect:IsA("BlurEffect") and effect.Name:find("Rayfield") then
@@ -42,7 +49,7 @@ local function CleanupAllBlur()
     end
 end
 
--- Theme Configuration
+-- Themes
 local Themes = {
     Default = {
         Background = Color3.fromRGB(20, 20, 30),
@@ -178,7 +185,7 @@ local Themes = {
     }
 }
 
--- Utility Functions
+-- Utility
 local Utility = {}
 
 function Utility:Create(instanceType, properties, children)
@@ -270,7 +277,7 @@ function Utility:MakeDraggable(frame, handle, config)
     end)
 end
 
--- Configuration Manager
+-- Config Manager
 local ConfigManager = {}
 
 function ConfigManager:GetSaveFolder(folderName)
@@ -318,15 +325,15 @@ function AlexchadLibrary:CreateWindow(options)
     end
     
     -- Options
-    local windowName = options.Name or "Rayfield"
-    local windowSubtitle = options.Subtitle or "Interface Suite"
-    local windowVersion = options.Version or "v3.2"
-    local loadingTitle = options.LoadingTitle or "Rayfield Interface"
+    local windowName = options.Name or "Alexchad Ui"
+    local windowSubtitle = options.Subtitle or "Interface Suite(Ohh fancy naming)"
+    local windowVersion = options.Version or "v3.2(version of library)"
+    local loadingTitle = options.LoadingTitle or "Alexchad Interface"
     local loadingSubtitle = options.LoadingSubtitle or "Loading..."
     local themeName = options.Theme or "Default"
     local configSaving = options.ConfigurationSaving or {}
     local configEnabled = configSaving.Enabled or false
-    local configFolder = configSaving.FolderName or "RayfieldConfig"
+    local configFolder = configSaving.FolderName or "AlexchadConfig"
     local configFile = configSaving.FileName or "config"
     
     -- Config
@@ -370,7 +377,7 @@ function AlexchadLibrary:CreateWindow(options)
     
     -- ScreenGui
     local ScreenGui = Utility:Create("ScreenGui", {
-        Name = "RayfieldUI",
+        Name = windowName,
         Parent = GuiParent,
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         ResetOnSpawn = false,
