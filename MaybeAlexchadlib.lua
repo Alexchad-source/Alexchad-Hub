@@ -857,20 +857,42 @@ function AlexchadLibrary:CreateWindow(options)
         Utility:Tween(MainContent, {BackgroundColor3 = newTheme.Container, BackgroundTransparency = newTheme.ContainerTransparency}, dur)
         
         -- Tab buttons
-        for _, tab in pairs(Window.Tabs) do
-            local isCurrent = tab == Window.CurrentTab
-            Utility:Tween(tab.Button, {
-                BackgroundColor3 = isCurrent and newTheme.Accent or newTheme.Element,
-                BackgroundTransparency = isCurrent and 0 or newTheme.ElementTransparency
-            }, dur)
-            Utility:Tween(tab.Label, {TextColor3 = isCurrent and newTheme.Text or newTheme.TextDark}, dur)
-            Utility:Tween(tab.Icon, {TextColor3 = isCurrent and newTheme.Text or newTheme.TextDark}, dur)
-            Utility:Tween(tab.Indicator, {BackgroundColor3 = newTheme.Accent}, dur)
-            
-            -- Update strokes
-            local btnStroke = tab.Button:FindFirstChildOfClass("UIStroke")
-            if btnStroke then Utility:Tween(btnStroke, {Color = newTheme.Border, Transparency = newTheme.BorderTransparency + 0.3}, dur) end
-        end
+		for _, tab in pairs(Window.Tabs) do
+		    local isCurrent = tab == Window.CurrentTab
+		    
+		    Utility:Tween(tab.Button, {
+		        BackgroundColor3 = isCurrent and newTheme.Accent or newTheme.Element,
+		        BackgroundTransparency = isCurrent and 0 or newTheme.ElementTransparency
+		    }, dur)
+		    
+		    Utility:Tween(tab.Label, {
+		        TextColor3 = isCurrent and newTheme.Text or newTheme.TextDark
+		    }, dur)
+		    
+		    -- Handle icon based on type (image or text)
+		    if tab.IconIsImage then
+		        Utility:Tween(tab.Icon, {
+		            ImageColor3 = isCurrent and newTheme.Text or newTheme.TextDark
+		        }, dur)
+		    else
+		        Utility:Tween(tab.Icon, {
+		            TextColor3 = isCurrent and newTheme.Text or newTheme.TextDark
+		        }, dur)
+		    end
+		    
+		    Utility:Tween(tab.Indicator, {
+		        BackgroundColor3 = newTheme.Accent
+		    }, dur)
+		    
+		    -- Update stroke
+		    local btnStroke = tab.Button:FindFirstChildOfClass("UIStroke")
+		    if btnStroke then
+		        Utility:Tween(btnStroke, {
+		            Color = newTheme.Border, 
+		            Transparency = newTheme.BorderTransparency + 0.3
+		        }, dur)
+		    end
+		end
         
         -- Update all registered elements
         for _, ref in pairs(Window.ElementRefs) do
