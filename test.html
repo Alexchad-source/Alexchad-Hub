@@ -2374,6 +2374,7 @@
                     try {
                         const video = await Utils.loadVideo(url);
                         const thumbnail = await this.generateVideoThumbnail(video);
+                        video.preload = 'auto';
                         return {
                             id,
                             type: 'video',
@@ -2384,6 +2385,7 @@
                             width: video.videoWidth,
                             height: video.videoHeight,
                             file
+                            element: video
                         };
                     } catch (error) {
                         NotificationManager.error('Error', `Failed to load video: ${file.name}`);
@@ -2401,7 +2403,8 @@
                             duration: 5,
                             width: img.width,
                             height: img.height,
-                            file
+                            file,
+                            element: img
                         };
                     } catch (error) {
                         NotificationManager.error('Error', `Failed to load image: ${file.name}`);
